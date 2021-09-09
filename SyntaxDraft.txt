@@ -1,0 +1,34 @@
+// Comments
+
+/*
+Multi-line comments
+*/
+
+var Type variableName // variable declaration
+
+struct structName {} // struct declaration (similar to a dictionary or class)
+structName.variableName // access stored properties for structs
+
+array arrayName [] // array declaration
+arrayName at Index // access array indices
+
+function functionName(arg: Type) -> Type {} // function declaration
+
+if Bool then Statement // single line if statement
+if Bool {} // if statement
+while Bool {} // while loop
+
+for variable in CollectionType {} // for each loop
+for variable from Int to Int {} // indexed for loop
+for variable from Int to Int do Statement // single line for loop
+
+“” // string literal
+7 // integer literal
+7.02 // float literal
+True // boolean literal
+[3 6 1 0 2 28] // array literal
+{name: ”John” age: 45} // struct literal
+
+is // comparison operator
+
+variableName 👉 0 // variable assignment
