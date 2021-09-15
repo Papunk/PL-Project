@@ -4,13 +4,14 @@
 Multi-line comments
 */
 
-var Type variableName // variable declaration
+var variableName value // variable declaration (type is inferred upon first assignment)
+variableName = value // variable assignment
 
-struct structName {} // struct declaration (similar to a dictionary or class)
-structName.variableName // access stored properties for structs
+struct structName () // struct declaration (similar to a dictionary or class)
+structName.propertyName // access stored properties for structs
 
 array arrayName [] // array declaration
-arrayName at Index // access array indices
+arrayName at Int // access array indices
 
 function functionName(arg: Type) -> Type {} // function declaration
 
@@ -18,17 +19,21 @@ if Bool then Statement // single line if statement
 if Bool {} // if statement
 while Bool {} // while loop
 
-for variable in CollectionType {} // for each loop
+for variable in Collection {} // for each loop
 for variable from Int to Int {} // indexed for loop
 for variable from Int to Int do Statement // single line for loop
 
-“” // string literal
+“Hello there!” // string literal
+// integers and floats are handled equally as numbers
 7 // integer literal
 7.02 // float literal
 True // boolean literal
 [3 6 1 0 2 28] // array literal
-{name: ”John” age: 45} // struct literal
+(name: ”John” age: 45) // struct literal
 
 is // comparison operator
+// boolean operators
+or
+and
 
-variableName 👉 0 // variable assignment
+variableName 👉 0 // variable assignment (easter egg)
