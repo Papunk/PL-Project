@@ -2,10 +2,11 @@
 
 ### Syntax Draft
 
+#### Comments
 ```
-// Comments
+// Single line comments
 
-/*  
+/* 
 Multi-line comments  
 */
 ```
@@ -24,9 +25,7 @@ arrayName at Int // access array indices
 function functionName(arg: Type) -> Type {} // function declaration
 ```
 
-
 #### Control flow
-
 ```
 if Bool then Statement // single line if statement
 
@@ -43,7 +42,6 @@ for variable from Int to Int do Statement // single line for loop
 
 #### Literals
 ```
-
 “Hello there!” // string literal
 
 7 // number literal
@@ -56,7 +54,6 @@ True // boolean literal
 ```
 
 #### Conditional Operators
-
 ```
 is // comparison operator
 
