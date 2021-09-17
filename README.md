@@ -29,6 +29,11 @@ arrayName at Int // access array indices
 function functionName(arg: Type) -> Type {} // function declaration
 ```
 
+#### Special commands
+```
+read "fileName.extension" // returns the contents of a file
+```
+
 #### Control flow
 ```
 if Bool then Statement // single line if statement
