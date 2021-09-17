@@ -1,5 +1,9 @@
 # PL-Project
 
+### Synopsis
+
+Our (presently unnamed) programming language sets out to provide powerful tools for data analysis and visualization at a high level of abstraction. The language will be implemented in Java and will thus have access to Java's robust support for creating and managing data structure while maintaining a simple syntax that draws inspiration from modern scripting languages.
+
 ### Syntax Draft
 
 #### Comments
