@@ -17,8 +17,11 @@ Multi-line comments
 
 #### Variables and functions
 ```
-var variableName value // variable declaration (type is inferred upon first assignment)
+make variableName value // variable declaration (type is inferred upon first assignment)
 variableName = value // variable assignment
+assign value to variableName // variable assignment
+
+turn variableName to newType // type casting
 
 struct structName () // empty struct declaration (similar to a dictionary or class)
 structName.propertyName // access stored properties for structs
