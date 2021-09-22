@@ -23,11 +23,15 @@ assign value to variableName // variable assignment
 
 turn variableName to newType // type casting
 
-struct structName () // empty struct declaration (similar to a dictionary or class)
-structName.propertyName // access stored properties for structs
+dict dictName () // empty dictionary declaration
+dictName at key // access the value that matces the key
 
 array arrayName [] // array declaration
 arrayName at Int // access array indices
+
+struct structName {} // struct declaration
+structName.propertyName // access stored property
+structName.funcName // use internal function
 
 function functionName(arg: Type) -> Type {} // function declaration
 ```
