@@ -1,0 +1,21 @@
+// Making and displaying a graph from a json file
+
+struct User {
+    let name -> String
+    let ID -> Number
+}
+
+let userGraph = Graph(User).generate(read "userNetworkData.json")
+
+display userGraph
+
+
+// Analyzing sets
+
+let setA = Set([/*Some data*/])
+let setB = Set([/*Other data*/])
+
+display {
+    setA
+    setB
+}
