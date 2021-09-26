@@ -49,15 +49,12 @@ display {} // display multiple objects of the same type
 #### Control flow
 ```
 if Bool then Statement // single line if statement
-
 if Bool {} // if statement
 
 while Bool {} // while loop
 
 for variable in Collection {} // for each loop
-
 for variable from Int to Int {} // indexed for loop
-
 for variable from Int to Int do Statement // single line for loop
 ```
 
@@ -80,8 +77,6 @@ Set()
 #### Conditional Operators
 ```
 is // comparison operator
-
 or // or operator
-
 and // and operator
 ```
