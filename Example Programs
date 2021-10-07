@@ -10,9 +10,10 @@ let userGraph = Graph(User).generate(read "userNetworkData.json")
 display userGraph
 
 
+
 // Analyzing sets
 
-let setA = Set([/*Some data*/])
+let setA = Set().generate(read "setData.csv")
 let setB = Set([/*Other data*/])
 
 display {
