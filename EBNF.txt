@@ -1,0 +1,32 @@
+<comment> := //(all characters)*\n | /*(all characters)*/
+<string> := "(all characters)*"
+<number> := (0-9)+[.](0-9)*
+<boolean> := (true | false)
+
+
+
+var variableName value // variable declaration (type is inferred upon first assignment)
+variableName = value // variable assignment
+
+struct structName () // struct declaration (similar to a dictionary or class)
+structName.propertyName // access stored properties for structs
+
+array arrayName [] // array declaration
+arrayName at Int // access array indices
+
+function functionName(arg: Type) -> Type {} // function declaration
+
+if Bool then Statement // single line if statement
+if Bool {} // if statement
+while Bool {} // while loop
+
+for variable in Collection {} // for each loop
+for variable from Int to Int {} // indexed for loop
+for variable from Int to Int do Statement // single line for loop
+
+is // comparison operator
+// boolean operators
+or
+and
+
+variableName 👉 0 // variable assignment (easter egg)
