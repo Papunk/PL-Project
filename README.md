@@ -54,7 +54,7 @@ if Bool {} // if statement
 while Bool {} // while loop
 
 for variable in Collection {} // for each loop
-for variable from Int to Int {} // indexed for loop
+for variable from Int to Int by Int {} // indexed for loop
 for variable from Int to Int do Statement // single line for loop
 ```
 
