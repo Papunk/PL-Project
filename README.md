@@ -2,7 +2,7 @@
 
 ### Synopsis
 
-Our (presently unnamed) programming language sets out to provide powerful tools for data analysis and visualization at a high level of abstraction. The language is primarily designed for analysis, not manipulaition, of data. The language will be implemented in Java and will thus have access to Java's robust support for creating and managing data structures while maintaining a simple syntax that draws inspiration from modern scripting languages. Users should not have to worry about the implementation details behind most constructs.
+Our programming language sets out to provide powerful tools for data analysis and visualization at a high level of abstraction. The language is primarily designed for analysis, not manipulaition, of data. The language will be implemented in Java and will thus have access to Java's robust support for creating and managing data structures while maintaining a simple syntax that draws inspiration from modern scripting languages. Users should not have to worry about the implementation details behind most constructs.
 
 ### Syntax Draft
 
