@@ -1,7 +1,7 @@
 <comment> := // <string> <newline>
            | /* <string> */
 
-<string> := "(all unicode characters)*"
+<string> := <quote> (all unicode characters)* <quote>
 
 <number> := (0-9)+[.](0-9)*
 
@@ -10,6 +10,12 @@
 
 <if_statement> := if <condition> then <statements>
                 | if <condition> \n {<statements>}
+                
+<condition> := <> <contidional_operator> <>
+
+<contidional_operator> := and
+                        | or 
+                        | not
 
 <statements> := <statement> <statements>
               | <empty>
@@ -17,6 +23,8 @@
 <statement> := <if_statement> <newline>
              | <for_statement> <newline>
              | <while_statement> <newline>
+
+<quote> := "
 
 <newline> := \n
 
@@ -43,8 +51,3 @@ for variable from Int to Int {} // indexed for loop
 for variable from Int to Int do Statement // single line for loop
 
 is // comparison operator
-// boolean operators
-or
-and
-
-variableName 👉 0 // variable assignment (easter egg)
