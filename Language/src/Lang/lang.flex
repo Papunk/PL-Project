@@ -1,41 +1,22 @@
+package Lang;
 import java.io.*;
+
 
 %%
 
-%class lexer
+%class Lexer
 %standalone
 
 %{
-    String out;
-    BufferedWriter outputFile;
-    StateHandler h;
-    int scopeLevel;
-    Helper help;
-    /// new
     Parser parser;
 %}
 
 %init{
-    out = "";
-    try {
-        outputFile = new BufferedWriter(new FileWriter("outfilename"));
-    }
-    catch (Exception e) {}
-    h = new StateHandler();
-    help = new Helper();
-    scopeLevel = 0; //TODO use this to add tabs
-
-    /// new
-
     parser = new Parser();
 %init}
 
 %eof{
-    try {
-        outputFile.write(parser.out());
-        outputFile.close();
-    }
-    catch (Exception e) {}
+    parser.end();
 %eof}
 
 
