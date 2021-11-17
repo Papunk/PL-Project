@@ -1,10 +1,27 @@
-<stmt> :=
+<stmt> := //a statement can have a scope  {}
 
 
-<var_dec> := let <var_name> = <value> (-> <type> | e)
+<var_dec> := let <var_assign> (-> <type> | e)
+
+<var_assign> := <var_name> = <value>
 
 <func_dec> := 
 
-
 <command> := <command_name> <>
-    <command_name> := read | make | print | display
+
+<command_name> := read | make | print | display
+
+
+// Control flow
+
+
+<if_stmt> := if <exp> then <stmt>
+
+<for_loop> := for <var_name> from <int> to <int> do <stmt>
+
+<while_loop> := while <exp> do <stmt>
+
+
+// Literals
+
+<str> := " <Any Character> " 
