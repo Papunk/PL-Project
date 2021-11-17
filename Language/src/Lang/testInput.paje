@@ -1,0 +1,5 @@
+let number = 0.34 -> num
+
+number = 30 * 2
+
+if number > 5 then 

@@ -20,9 +20,9 @@ import java.io.*;
 %eof}
 
 
-number = [0-9]+
-built_in_functions = print | factorial | exponent
-id = [A-Za-z]+
+num = [0-9]+\.[0-9]+ | [0-9]*
+commands = print | display | read | make
+id = [A-Za-z]+[A-Za-z | 0-9 | _ | \-]*
 operator = \+ | \- | \* | \/
 rel_op = < | > | ==
 newline = \n
