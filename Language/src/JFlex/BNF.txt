@@ -1,0 +1,10 @@
+<stmt> :=
+
+
+<var_dec> := let <var_name> = <value> (-> <type> | e)
+
+<func_dec> := 
+
+
+<command> := <command_name> <>
+    <command_name> := read | make | print | display

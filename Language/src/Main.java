@@ -1,6 +1,10 @@
 public class Main {
-
+    // launch this from language command
     public static void main(String[] args) {
-	// write your code here
+        // takes the file
+        // runs lexer
+            // lexer generates preliminary file
+        //
+
     }
 }
