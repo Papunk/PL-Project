@@ -6,11 +6,11 @@
 
 <var_def> := let <var_assign> <type_dec>
 
-<type_dec> := (-> <type> | e)
+<var_assign> := <id> = <value>
+
+<type_dec> := -> <type>
 
 <type_def> := type <id> { <var_def> }
-
-<var_assign> := <id> = <value>
 
 <func_def> := func <id> ( <args> )
 

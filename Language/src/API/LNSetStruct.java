@@ -13,6 +13,6 @@ interface LNSet<E> {
     int size();
 }
 
-public class LNSetStruct<E> implements LNSet {
+public class LNSetStruct<E> /*implements LNSet*/ {
     private Set<E> elements = new HashSet<E>();
 }

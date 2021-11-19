@@ -1,5 +1,6 @@
 package Lang;
 import java.io.*;
+import LangTools.*;
 
 
 %%
@@ -27,8 +28,8 @@ operator = \+ | \- | \* | \/
 rel_op = < | > | ==
 newline = \n
 
-%state ASSIGNMENT
-%state EXPRESSION
+%state var_def
+%state exp
 %state FUNCTION
 %state IF_CLAUSE
 %state CONDITION
@@ -36,100 +37,98 @@ newline = \n
 %%
 
 <YYINITIAL> {
-    var {
-        yybegin(ASSIGNMENT);
-    }
-
-    {built_in_functions} {
-        out += yytext() + "(";
-        yybegin(FUNCTION);
+    let {id} = * -> {
+        parser.receive(yytext(), ParserMessage.var_def);
+        // yybegin(ASSIGNMENT);
     }
 
     if {
-        out += help.tabulate(scopeLevel) + yytext() + " ";
-        yybegin(IF_CLAUSE);
+        // parser.receive(yytext());
     }
 
-    \} {
-        scopeLevel--;
-        yybegin(h.popState());
+    for {
+
+    }
+
+    while {
+
     }
 }
 
-<ASSIGNMENT> {
-    {id} {
-        out += help.tabulate(scopeLevel) + yytext();
-    }
+// <ASSIGNMENT> {
+//     // {id} {
+//     //     out += help.tabulate(scopeLevel) + yytext();
+//     // }
 
-    \= {
-        out += "=";
-    }
+//     // \= {
+//     //     out += "=";
+//     // }
 
-    {number} {
-        out += yytext();
-        h.pushState(yystate());
-        yybegin(EXPRESSION);
-    }
-}
+//     // {number} {
+//     //     out += yytext();
+//     //     h.pushState(yystate());
+//     //     yybegin(EXPRESSION);
+//     // }
+// }
 
-// don't support identifiers just yet
-<EXPRESSION> {
-    {operator} {
-        out += yytext();
-    }
+// // don't support identifiers just yet
+// <EXPRESSION> {
+//     // {operator} {
+//     //     out += yytext();
+//     // }
 
-    {number} {
-        out += yytext();
-    }
+//     // {number} {
+//     //     out += yytext();
+//     // }
 
-    {newline} {
-        int state = h.popState();
-        if (state == FUNCTION) {
-            out += ")\n";
-        }
-        else if (state == ASSIGNMENT) {
-            out += "\n";
-        }
-        yybegin(YYINITIAL);
-    }
-}
+//     // {newline} {
+//     //     int state = h.popState();
+//     //     if (state == FUNCTION) {
+//     //         out += ")\n";
+//     //     }
+//     //     else if (state == ASSIGNMENT) {
+//     //         out += "\n";
+//     //     }
+//     //     yybegin(YYINITIAL);
+//     // }
+// }
 
-<FUNCTION> {
-    {number} {
-        if (out.charAt(out.length() - 1) != '(') out += ",";
-        out += yytext();
-        h.pushState(yystate());
-        yybegin(EXPRESSION);
-    }
+// <FUNCTION> {
+//     // {number} {
+//     //     if (out.charAt(out.length() - 1) != '(') out += ",";
+//     //     out += yytext();
+//     //     h.pushState(yystate());
+//     //     yybegin(EXPRESSION);
+//     // }
 
-    {id} {
-        if (out.charAt(out.length() - 1) != '(') out += ",";
-        out += yytext();
-    }
-}
+//     // {id} {
+//     //     if (out.charAt(out.length() - 1) != '(') out += ",";
+//     //     out += yytext();
+//     // }
+// }
 
-<IF_CLAUSE> {
-    {number} {
-        out += yytext();
-        h.pushState(yystate());
-        yybegin(CONDITION);
-    }
-}
+// <IF_CLAUSE> {
+//     // {number} {
+//     //     out += yytext();
+//     //     h.pushState(yystate());
+//     //     yybegin(CONDITION);
+//     // }
+// }
 
-<CONDITION> {
-    {number} {
-        out += yytext();
-    }
+// <CONDITION> {
+//     // {number} {
+//     //     out += yytext();
+//     // }
 
-    {rel_op} {
-        out += yytext();
-    }
+//     // {rel_op} {
+//     //     out += yytext();
+//     // }
 
-    \{ {
-        out += ":\n";
-        scopeLevel++;
-        // if EmptyStackExc, uncomment this:
-        // h.pushState(yystate());
-        yybegin(YYINITIAL);
-    }
-}
+//     // \{ {
+//     //     out += ":\n";
+//     //     scopeLevel++;
+//     //     // if EmptyStackExc, uncomment this:
+//     //     // h.pushState(yystate());
+//     //     yybegin(YYINITIAL);
+//     // }
+// }
