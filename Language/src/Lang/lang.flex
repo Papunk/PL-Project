@@ -18,6 +18,7 @@ import LangTools.*;
 
 %eof{
     parser.end();
+    System.out.println("\nLexer: End of execution");
 %eof}
 
 
@@ -28,22 +29,19 @@ operator = \+ | \- | \* | \/
 rel_op = < | > | ==
 newline = \n
 
-%state var_def
-%state exp
-%state FUNCTION
-%state IF_CLAUSE
-%state CONDITION
+
+%state SCOPE
 
 %%
 
 <YYINITIAL> {
-    let {id} = * -> {
-        parser.receive(yytext(), ParserMessage.var_def);
+    let {
+        parser.receive(yytext(), State.var_def);
         // yybegin(ASSIGNMENT);
     }
 
     if {
-        // parser.receive(yytext());
+
     }
 
     for {
