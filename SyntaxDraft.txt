@@ -18,8 +18,8 @@ arrayName at Int // access array indices
 function functionName(arg: Type) -> Type {} // function declaration
 
 if Bool then Statement // single line if statement
-if Bool {} // if statement
-while Bool {} // while loop
+if Bool then {} // if statement
+while Bool do {} // while loop
 
 for variable in Collection {} // for each loop
 for variable from Int to Int {} // indexed for loop
