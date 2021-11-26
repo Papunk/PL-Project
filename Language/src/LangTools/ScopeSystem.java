@@ -16,6 +16,7 @@ public class ScopeSystem {
     public ScopeSystem() {
         currentScopeLevel = 0;
         scopeStack.add(new Scope(0)); // create root scope
+        // TODO add built in types to parent scope
     }
 
     /**

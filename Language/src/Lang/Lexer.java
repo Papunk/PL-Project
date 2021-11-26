@@ -20,7 +20,7 @@ class Lexer {
 
   // Lexical states.
   public static final int YYINITIAL = 0;
-  public static final int SCOPE = 2;
+  public static final int VAR_ASSIGN = 2;
 
   /**
    * ZZ_LEXSTATE[l] is the state in the DFA for the lexical state l
@@ -66,9 +66,11 @@ class Lexer {
   private static final int [] ZZ_CMAP_BLOCKS = zzUnpackcmap_blocks();
 
   private static final String ZZ_CMAP_BLOCKS_PACKED_0 =
-    "\145\0\1\1\1\2\1\0\1\3\1\4\2\0\1\5"+
-    "\2\0\1\6\2\0\1\7\1\0\1\10\2\0\1\11"+
-    "\u0188\0";
+    "\12\0\1\1\25\0\1\2\14\0\1\2\2\0\12\2"+
+    "\7\0\32\3\4\0\1\2\1\0\4\3\1\4\1\5"+
+    "\1\3\1\6\1\7\2\3\1\10\2\3\1\11\2\3"+
+    "\1\12\1\3\1\13\2\3\1\14\3\3\1\0\1\2"+
+    "\u0183\0";
 
   private static int [] zzUnpackcmap_blocks() {
     int [] result = new int[512];
@@ -95,10 +97,10 @@ class Lexer {
   private static final int [] ZZ_ACTION = zzUnpackAction();
 
   private static final String ZZ_ACTION_PACKED_0 =
-    "\2\0\5\1\1\0\1\2\2\0\1\3\2\0";
+    "\2\0\1\1\1\2\6\3\1\4\2\3\1\5\2\3";
 
   private static int [] zzUnpackAction() {
-    int [] result = new int[14];
+    int [] result = new int[16];
     int offset = 0;
     offset = zzUnpackAction(ZZ_ACTION_PACKED_0, offset, result);
     return result;
@@ -123,11 +125,11 @@ class Lexer {
   private static final int [] ZZ_ROWMAP = zzUnpackRowMap();
 
   private static final String ZZ_ROWMAP_PACKED_0 =
-    "\0\0\0\12\0\24\0\36\0\50\0\62\0\74\0\106"+
-    "\0\24\0\120\0\132\0\24\0\144\0\156";
+    "\0\0\0\15\0\32\0\32\0\47\0\64\0\101\0\116"+
+    "\0\133\0\150\0\47\0\165\0\202\0\47\0\217\0\234";
 
   private static int [] zzUnpackRowMap() {
-    int [] result = new int[14];
+    int [] result = new int[16];
     int offset = 0;
     offset = zzUnpackRowMap(ZZ_ROWMAP_PACKED_0, offset, result);
     return result;
@@ -150,13 +152,16 @@ class Lexer {
   private static final int [] ZZ_TRANS = zzUnpackTrans();
 
   private static final String ZZ_TRANS_PACKED_0 =
-    "\2\3\1\4\1\3\1\5\1\6\3\3\1\7\12\3"+
-    "\20\0\1\10\5\0\1\11\10\0\1\12\13\0\1\13"+
-    "\15\0\1\11\12\0\1\14\5\0\1\15\12\0\1\16"+
-    "\5\0\1\11\10\0";
+    "\1\3\1\4\1\3\2\5\1\6\1\5\1\7\1\10"+
+    "\3\5\1\11\15\3\17\0\13\5\2\0\7\5\1\12"+
+    "\3\5\2\0\3\5\1\13\7\5\2\0\2\5\1\14"+
+    "\10\5\2\0\4\5\1\15\6\5\2\0\10\5\1\13"+
+    "\2\5\2\0\11\5\1\16\1\5\2\0\5\5\1\17"+
+    "\5\5\2\0\6\5\1\20\4\5\2\0\2\5\1\13"+
+    "\10\5";
 
   private static int [] zzUnpackTrans() {
-    int [] result = new int[120];
+    int [] result = new int[169];
     int offset = 0;
     offset = zzUnpackTrans(ZZ_TRANS_PACKED_0, offset, result);
     return result;
@@ -199,10 +204,10 @@ class Lexer {
   private static final int [] ZZ_ATTRIBUTE = zzUnpackAttribute();
 
   private static final String ZZ_ATTRIBUTE_PACKED_0 =
-    "\2\0\1\11\4\1\1\0\1\11\2\0\1\11\2\0";
+    "\2\0\2\11\14\1";
 
   private static int [] zzUnpackAttribute() {
-    int [] result = new int[14];
+    int [] result = new int[16];
     int offset = 0;
     offset = zzUnpackAttribute(ZZ_ATTRIBUTE_PACKED_0, offset, result);
     return result;
@@ -639,18 +644,28 @@ class Lexer {
             { System.out.print(yytext());
             }
             // fall through
-          case 4: break;
+          case 6: break;
           case 2:
+            { parser.receive(yytext(), TokenType.n);
+            }
+            // fall through
+          case 7: break;
+          case 3:
+            { parser.receive(yytext(), TokenType.ID);
+            }
+            // fall through
+          case 8: break;
+          case 4:
             { 
             }
             // fall through
-          case 5: break;
-          case 3:
-            { parser.receive(yytext(), State.var_def);
-        // yybegin(ASSIGNMENT);
+          case 9: break;
+          case 5:
+            { parser.setState(State.var_def);
+        yystate();
             }
             // fall through
-          case 6: break;
+          case 10: break;
           default:
             zzScanError(ZZ_NO_MATCH);
         }
