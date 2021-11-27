@@ -21,51 +21,69 @@ import LangTools.*;
     System.out.println("\nLexer: End of execution");
 %eof}
 
-
-num = [0-9]+\.[0-9]+ | [0-9]*
-commands = print | display | read | make
+// types
+num = [0-9]+\.[0-9]+|[0-9]*
+string = \"*\"
+bool = true|false
+literal = {num}|{string}|{bool}
+//
 id = [A-Za-z0-9_\-]+
 operator = \+ | \- | \* | \/
 rel_op = < | > | ==
+arrow = ->
+eq = =
+type = num|string|bool
+commands = print | display | read | make
+// spaces
+tab = \t
 newline = \n
 space = [ ]*
 
 
-%state VAR_ASSIGN
-
-
 %%
 
-<YYINITIAL> {
-    let {
-        parser.setState(State.var_def);
-    }
 
-    if {
+// types of statements
 
-    }
-
-    for {
-
-    }
-
-    while {
-
-    }
-
-    {id} {
-        parser.receive(yytext(), TokenType.ID);
-    }
-
-    {newline} {
-        parser.receive(yytext(), TokenType.newline);
-    }
-
-    {space} {
-        
-    }
+let {
+    parser.setState(State.var_def);
 }
 
-// <VAR_ASSIGN> {
+// literals
 
-// }
+{literal} {
+    parser.receive(yytext(), TokenType.literal);
+}
+
+
+//
+
+
+{type} {
+    parser.receive(yytext(), TokenType.type);
+}
+
+
+{id} {
+    parser.receive(yytext(), TokenType.id);
+}
+
+{newline} {
+    parser.receive(yytext(), TokenType.newline);
+}
+
+{space} {
+
+}
+
+{eq} {
+    parser.receive(yytext(), TokenType.eq);
+}
+
+{arrow} {
+    parser.receive(yytext(), TokenType.arrow);
+}
+
+// function call
+{id}\( {
+}

@@ -1,5 +1,7 @@
 package API;
 
+import LangTools.Type;
+
 public interface LNStruct {
-    LNType getType();
+    Type getType();
 }

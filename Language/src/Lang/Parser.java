@@ -7,18 +7,18 @@ import java.util.*;
 
 public class Parser {
 
-    private final ArrayList<String> output = new ArrayList<>();
-    private final ScopeSystem programScope = new ScopeSystem();
+    private final List<String> output = new ArrayList<>();
+    private final ScopeSystem scopes = new ScopeSystem();
     private final List<Error> errors = new ArrayList<>();
-    private final Stack<State> stateStack = new Stack<>();
-    private final Deque<Token> currentSentence = new ArrayDeque<>();
-    private Token currentToken = null;
-    private int currentLine = 1;
+    private final Stack<State> states = new Stack<>();
+    private final List<Token> sentence = new ArrayList<>();
+    private Token token = null;
+    private int line = 1;
 
 
     public Parser() {
         addHeader();
-        stateStack.push(State.program);
+        states.push(State.program);
     }
 
     /**
@@ -36,10 +36,10 @@ public class Parser {
      * @param text input from the lexer
      */
     public void receive(String text, TokenType type) {
-        currentToken = new Token(text, type);
-        System.out.println(currentToken);
+        token = new Token(text, type);
+        System.out.println(token);
 //        System.out.println(currentSentence);
-        switch (stateStack.peek()) {
+        switch (states.peek()) {
             case program: break;
             case var_def: var_def(); break;
             case if_stmt: break;
@@ -52,7 +52,7 @@ public class Parser {
      * @param state the state of the parser
      */
     public void setState(State state) {
-        stateStack.push(state);
+        states.push(state);
     }
 
     /**
@@ -60,7 +60,7 @@ public class Parser {
      */
     public void dropState() {
         // TODO dont destroy the base state
-        stateStack.pop();
+        states.pop();
     }
 
     /**
@@ -91,16 +91,40 @@ public class Parser {
     // Parser Functions
 
 
-    private void scope() {}
+    private void program() {}
     private void stmt() {}
     private void var_def() {
-        switch (currentToken.type) {
-            case ID:
-                if (currentSentence.isEmpty()) currentSentence.addLast(currentToken);
-                else addError(ErrorType.SyntaxError);
+        switch (token.type) {
+            case id: case literal: case type: case eq: case arrow:
+                sentence.add(token);
                 break;
-            case newline: newline();
-            default: break;
+            case newline:
+                System.out.print("CURRENT SENTENCE: ");
+                System.out.println(sentence);
+                if (sentence.size() != 5) addError(ErrorType.InvalidSentenceError);
+                else {
+                    String result = "";
+                    // variable type
+                    if (sentence.get(4).type == TokenType.type) result += sentence.get(4).toJava(true);
+                    else addError(ErrorType.InvalidSentenceError);
+                    // variable name
+                    if (sentence.get(0).type == TokenType.id) result += sentence.get(0).toJava(true);
+                    else addError(ErrorType.InvalidSentenceError);
+                    // equal sign
+                    if (sentence.get(1).type == TokenType.eq) result += sentence.get(1).toJava(true);
+                    else addError(ErrorType.IncompleteExpressionError);
+
+                    if (!lineHasErrors()) {
+                        scopes.addVariable(sentence.get(0).text, Type.getType(sentence.get(4).text));
+                        addToOutput(result, true);
+                    }
+                    dropState();
+                }
+                clearSentence();
+                newline();
+                break;
+            default:
+                addError(ErrorType.SyntaxError);
         }
     }
     private void var_assign() {}
@@ -111,7 +135,7 @@ public class Parser {
     private void for_loop() {}
     private void while_loop() {}
     private void newline() {
-        currentLine++;
+        line++;
     }
 
 
@@ -132,11 +156,35 @@ public class Parser {
      * Empties the current sentence
      */
     private void clearSentence() {
-        currentSentence.clear();
+        sentence.clear();
     }
 
     private void addError(ErrorType t) {
-        errors.add(new Error(currentLine, t));
+        addError(t, line);
+    }
+
+    private void addError(ErrorType t, int line) {
+        Error err = new Error(line, t);
+        for (Error e: errors) if (e.equals(err)) return;
+        errors.add(err);
+    }
+
+    /**
+     * Checks if the current line contains an error
+     */
+    private boolean lineHasErrors() {
+        for (Error e: errors) if (e.line == line) return true;
+        return false;
+    }
+
+    private void addToOutput(String s, boolean semicolon) {
+        if (semicolon) s += ";";
+        output.add(s);
+    }
+
+    // TODO make this debug function
+    private void printState() {
+
     }
 
 
@@ -158,6 +206,30 @@ public class Parser {
             if (type == TokenType.newline) return "'\\n' <"+ type.name() + ">";
             return "'" + text + "' <"+ type.name() + ">";
         }
+
+        public String toJava(boolean space) {
+            String result = "<NIL>";
+            switch (type) {
+                case type:
+                    switch (text) {
+                        case "bool":
+                            result = "Boolean";
+                            break;
+                        case "num":
+                            result = "Double";
+                            break;
+                        case "string":
+                            result = "String";
+                            break;
+                    }
+                    break;
+                case eq:
+                    result = "=";
+                    break;
+            }
+            if (space) result += " ";
+            return result ;
+        }
     }
 
     private static class Error {
@@ -173,7 +245,22 @@ public class Parser {
         public String toString() {
             return type.name() + " at line " + Integer.toString(line);
         }
+
+        @Override
+        public boolean equals(Object o) {
+            return ((Error) o).line == this.line && ((Error) o).type == this.type;
+        }
     }
+
+    private static class Sentence {
+        public String[] words;
+
+        public Sentence(int n) {
+            this.words = new String[n];
+        }
+
+    }
+
 }
 
 /**

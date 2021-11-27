@@ -1,2 +1,1 @@
-let my_var illegal
-
+let my_var = 29834 -> bool
