@@ -5,5 +5,5 @@ package LangTools;
  */
 public enum TokenType {
     ID,
-    n
+    newline
 }

@@ -9,16 +9,13 @@ public class Parser {
 
     private final ArrayList<String> output = new ArrayList<>();
     private final ScopeSystem programScope = new ScopeSystem();
-    private final Stack<String> errorStack = new Stack<>();
+    private final List<Error> errors = new ArrayList<>();
     private final Stack<State> stateStack = new Stack<>();
     private final Deque<Token> currentSentence = new ArrayDeque<>();
     private Token currentToken = null;
-    private Token prevToken = null;
+    private int currentLine = 1;
 
 
-    /**
-     * Constructor
-     */
     public Parser() {
         addHeader();
         stateStack.push(State.program);
@@ -40,10 +37,13 @@ public class Parser {
      */
     public void receive(String text, TokenType type) {
         currentToken = new Token(text, type);
+        System.out.println(currentToken);
+//        System.out.println(currentSentence);
         switch (stateStack.peek()) {
-            case var_def: var_def();
-            case if_stmt: ;
-            default: // throw syntax error;
+            case program: break;
+            case var_def: var_def(); break;
+            case if_stmt: break;
+            default: break;
         }
     }
 
@@ -64,6 +64,61 @@ public class Parser {
     }
 
     /**
+     * Writes the output to an external file
+     */
+    public void end() {
+        if (!errors.isEmpty()) {
+            String errorTrace = "";
+            for (Error e: errors) {
+                errorTrace += e.toString() + "\n";
+            }
+            System.out.print(errorTrace);
+            return;
+        }
+        try {
+            FileWriter file = new FileWriter("src/Lang/outputTest.txt");
+            for (String s: output) {
+                file.write(s);
+            }
+            file.close();
+        }
+        catch(Exception e) {
+            // do something
+        }
+    }
+
+
+    // Parser Functions
+
+
+    private void scope() {}
+    private void stmt() {}
+    private void var_def() {
+        switch (currentToken.type) {
+            case ID:
+                if (currentSentence.isEmpty()) currentSentence.addLast(currentToken);
+                else addError(ErrorType.SyntaxError);
+                break;
+            case newline: newline();
+            default: break;
+        }
+    }
+    private void var_assign() {}
+    private void func_dec() {}
+    private void command() {}
+    private void id() {}
+    private void if_stmt() {}
+    private void for_loop() {}
+    private void while_loop() {}
+    private void newline() {
+        currentLine++;
+    }
+
+
+    // Function Toolkit
+
+
+    /**
      * Adds crucial imports to the file
      */
     private void addHeader() {
@@ -80,42 +135,13 @@ public class Parser {
         currentSentence.clear();
     }
 
-    /**
-     * Writes the output to an external file
-     */
-    public void end() {
-        // TODO print error trace
-        try {
-            FileWriter file = new FileWriter("src/Lang/outputTest.txt");
-            for (String s: output) {
-                file.write(s);
-            }
-            file.close();
-        }
-        catch(Exception e) {
-            // do something
-        }
+    private void addError(ErrorType t) {
+        errors.add(new Error(currentLine, t));
     }
 
 
-     // ======================= Recursive Descent Parser Functions ======================= //
 
-    private void scope() {}
-    private void stmt() {}
-    private void var_def() {
-        switch (currentToken.type) {
-            case ID:;
-            case n:;
-            default: //error ;
-        }
-    }
-    private void var_assign() {}
-    private void func_dec() {}
-    private void command() {}
-    private void id() {}
-    private void if_stmt() {}
-    private void for_loop() {}
-    private void while_loop() {}
+    // Internal Classes
 
 
     private static class Token {
@@ -127,12 +153,32 @@ public class Parser {
             this.type = type;
         }
 
+        @Override
+        public String toString() {
+            if (type == TokenType.newline) return "'\\n' <"+ type.name() + ">";
+            return "'" + text + "' <"+ type.name() + ">";
+        }
+    }
+
+    private static class Error {
+        public int line;
+        public ErrorType type;
+
+        public Error(int line, ErrorType type) {
+            this.line = line;
+            this.type = type;
+        }
+
+        @Override
+        public String toString() {
+            return type.name() + " at line " + Integer.toString(line);
+        }
     }
 }
 
 /**
  * Note: architecture for functions:
- * default case -> wrong type of token for this state
+ * default case -> wrong type of token for this state (add error; skip to the next line)
  * in other cases, add the relevant bit to the top of the deque
  * whe we reach the terminator, pop stateStack and remove the sentence from the bottom of the deque
  */

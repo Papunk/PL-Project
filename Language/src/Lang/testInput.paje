@@ -1,1 +1,2 @@
-let helloThere= 35 -> int
+let my_var illegal
+

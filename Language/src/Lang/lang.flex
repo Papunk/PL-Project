@@ -24,10 +24,11 @@ import LangTools.*;
 
 num = [0-9]+\.[0-9]+ | [0-9]*
 commands = print | display | read | make
-id = [A-Za-z]+[A-Za-z | 0-9 | _ | \-]*
+id = [A-Za-z0-9_\-]+
 operator = \+ | \- | \* | \/
 rel_op = < | > | ==
 newline = \n
+space = [ ]*
 
 
 %state VAR_ASSIGN
@@ -38,7 +39,6 @@ newline = \n
 <YYINITIAL> {
     let {
         parser.setState(State.var_def);
-        yystate();
     }
 
     if {
@@ -58,7 +58,11 @@ newline = \n
     }
 
     {newline} {
-        parser.receive(yytext(), TokenType.n);
+        parser.receive(yytext(), TokenType.newline);
+    }
+
+    {space} {
+        
     }
 }
 
