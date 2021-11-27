@@ -1,7 +1,6 @@
 package LangTools;
 
 
-import java.beans.FeatureDescriptor;
 import java.util.*;
 
 /**
@@ -9,7 +8,7 @@ import java.util.*;
  */
 public class ScopeSystem {
     private final Stack<Scope> scopeStack = new Stack<>();
-    int currentScopeLevel; // 0 maps to one scope
+    private int currentScopeLevel; // 0 maps to one scope
 
     public ScopeSystem() {
         currentScopeLevel = 0;
@@ -74,6 +73,11 @@ public class ScopeSystem {
         return true;
     }
 
+    public int getScopeLevel() {
+        return currentScopeLevel;
+    }
+
+
     /**
      * This class internally represents a scope.
      * It keeps track of the functions and variables in each scope.
@@ -107,10 +111,6 @@ public class ScopeSystem {
                 if (f.equals(function)) return true;
             }
             return false;
-        }
-
-        public int getScopeLevel() {
-            return scopeLevel;
         }
     }
 }

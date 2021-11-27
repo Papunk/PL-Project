@@ -17,7 +17,13 @@ public class Parser {
 
 
     public Parser() {
-        addHeader();
+        addToOutput("import java.io.*", true);
+        addToOutput("import java.util.*", true);
+        // add our custom packages
+        addToOutput("public class Main {", false);
+        scopes.enterScope();
+        addToOutput("public static void main(String[] args) {", false);
+        scopes.enterScope();
         states.push(State.program);
     }
 
@@ -75,10 +81,14 @@ public class Parser {
             System.out.print(errorTrace);
             return;
         }
+        for (int i = 0; i < 2; i++) {
+            scopes.leaveScope();
+            addToOutput("}", false);
+        }
         try {
             FileWriter file = new FileWriter("src/Lang/outputTest.txt");
             for (String s: output) {
-                file.write(s);
+                file.write(s + "\n");
             }
             file.close();
         }
@@ -113,6 +123,11 @@ public class Parser {
                     // equal sign
                     if (sentence.get(1).type == TokenType.eq) result += sentence.get(1).toJava(true);
                     else addError(ErrorType.IncompleteExpressionError);
+                    // literal
+                    if (sentence.get(2).type == TokenType.literal) result += sentence.get(2).toJava(false);
+                    else addError(ErrorType.InvalidSentenceError);
+                    // checking for the arrow
+                    if (sentence.get(3).type != TokenType.arrow) addError(ErrorType.IncompleteExpressionError);
 
                     if (!lineHasErrors()) {
                         scopes.addVariable(sentence.get(0).text, Type.getType(sentence.get(4).text));
@@ -141,17 +156,6 @@ public class Parser {
 
     // Function Toolkit
 
-
-    /**
-     * Adds crucial imports to the file
-     */
-    private void addHeader() {
-        output.add("import java.io.*\n");
-        output.add("import java.util.*\n");
-        // add our custom packages
-        output.add("\n");
-    }
-
     /**
      * Empties the current sentence
      */
@@ -178,9 +182,15 @@ public class Parser {
     }
 
     private void addToOutput(String s, boolean semicolon) {
-        if (semicolon) s += ";";
-        output.add(s);
+        String temp = "";
+        for (int i = 0; i < scopes.getScopeLevel(); i++) {
+            temp += "\t";
+        }
+        temp += s;
+        if (semicolon) temp += ";";
+        output.add(temp);
     }
+
 
     // TODO make this debug function
     private void printState() {
@@ -225,6 +235,9 @@ public class Parser {
                     break;
                 case eq:
                     result = "=";
+                    break;
+                case id: case literal:
+                    result = this.text;
                     break;
             }
             if (space) result += " ";
