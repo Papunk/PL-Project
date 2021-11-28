@@ -1,9 +1,9 @@
 package Lang;
-import java.io.*;
 import LangTools.*;
 
 
 %%
+
 
 %class Lexer
 %standalone
@@ -26,7 +26,7 @@ num = [0-9]+\.[0-9]+|[0-9]*
 string = \".*?\"
 bool = true|false
 literal = {num}|{string}|{bool}
-//
+// stuff
 id = [A-Za-z0-9_\-]+
 operator = \+ | \- | \* | \/
 rel_op = < | > | ==
@@ -34,64 +34,50 @@ arrow = ->
 eq = =
 type = num|string|bool
 commands = print | display | read | make
+comment = \/\/.*
+value = {id}|{literal}
+// keywords
+if = if
+for = for
+while = while
 // spaces
 tab = \t
 newline = \n
-space = [ ]*
+ws = [ ]+
+wse = [ ]*
+other = .*?
+ignore = {ws}|{comment}
+// terminals
+var_def = let{ws}{var_assign}
+var_assign = {id}{ws}{eq}{ws}{value}{ws}{arrow}{ws}{type}
+func_call = {id}{ws}\({wse}{args}{wse}\)
+arg = {type}{ws}{value}
+args = {args},|{arg} // check this one lol
 
 
 %%
 
 
-// types of statements
+<YYINITIAL> {
 
-let {
-    parser.setState(State.var_def);
-}
+    {var_def} {
+        parser.var_def(parser.split(yytext()));
+    }
 
-// literals
+    // could be a function call or a variable assignment
+    {id} {
 
-{bool} {
-    parser.receive(yytext(), TokenType.bool);
-}
-
-{num} {
-    parser.receive(yytext(), TokenType.num);
-}
-
-{string} {
-    parser.receive(yytext(), TokenType.string);
-}
+    }
 
 
-//
+    {newline} {
+        parser.newline();
+    }
 
+    // error
+    {other} {
+        parser.addError(ErrorType.SyntaxError, "Grammar does not match known pattern");
+    }
 
-{type} {
-    parser.receive(yytext(), TokenType.type);
-}
-
-
-{id} {
-    parser.receive(yytext(), TokenType.id);
-}
-
-{newline} {
-    parser.receive(yytext(), TokenType.newline);
-}
-
-{space} {
-
-}
-
-{eq} {
-    parser.receive(yytext(), TokenType.eq);
-}
-
-{arrow} {
-    parser.receive(yytext(), TokenType.arrow);
-}
-
-// function call
-{id}\( {
+    {ignore} {}
 }

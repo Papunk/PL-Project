@@ -8,13 +8,32 @@ import java.util.*;
 
 public class Parser {
 
+
+
+
+
+    // Variables
+
+
+
+
+
     private final List<String> output = new ArrayList<>();
     private final ScopeSystem scopes = new ScopeSystem();
     private final List<Error> errors = new ArrayList<>();
-    private final Stack<State> states = new Stack<>();
+//    private final Stack<State> states = new Stack<>();
     private final List<Token> sentence = new ArrayList<>();
     private Token token = null;
     private int line = 1;
+
+
+
+
+
+    // Public API
+
+
+
 
 
     public Parser() {
@@ -25,7 +44,7 @@ public class Parser {
         scopes.enterScope();
         addToOutput("public static void main(String[] args) {", false);
         scopes.enterScope();
-        states.push(State.program);
+//        states.push(State.program);
     }
 
     /**
@@ -34,7 +53,7 @@ public class Parser {
      * @param state the state of the parser
      */
     public void receive(String text, TokenType type, State state) {
-        setState(state);
+//        setState(state);
         receive(text, type);
     }
 
@@ -46,29 +65,23 @@ public class Parser {
         token = new Token(text, type);
 //        System.out.println(token);
 //        System.out.println(currentSentence);
-        switch (states.peek()) {
-            case program: break;
-            case var_def: var_def(); break;
-            case if_stmt: break;
-            default: break;
-        }
     }
 
-    /**
-     * Sets the current parser state
-     * @param state the state of the parser
-     */
-    public void setState(State state) {
-        states.push(state);
-    }
-
-    /**
-     * Drops the current state
-     */
-    public void dropState() {
-        // TODO dont destroy the base state
-        states.pop();
-    }
+//    /**
+//     * Sets the current parser state
+//     * @param state the state of the parser
+//     */
+//    public void setState(State state) {
+//        states.push(state);
+//    }
+//
+//    /**
+//     * Drops the current state
+//     */
+//    public void dropState() {
+//        // TODO dont destroy the base state
+//        states.pop();
+//    }
 
     /**
      * Writes the output to an external file
@@ -99,87 +112,58 @@ public class Parser {
     }
 
 
+    /**
+     * Divides a string by whitespace
+     * @param s the string to divide
+     * @return the divided string as a list
+     */
+    public String[] split(String s) {
+        return s.split("\\s+");
+    }
+
+    /**
+     * Adds an error to the given line
+     * @param t type of error
+     * @param msg the message to be displayed
+     */
+    public void addError(ErrorType t, String msg) {
+        Error err = new Error(line, t, msg);
+        for (Error e: errors) if (e.equals(err)) return;
+        errors.add(err);
+    }
+
+
+
+
+
     // Parser Functions
 
 
-    private void program() {}
-    private void stmt() {}
-    private void var_def() {
-        switch (token.type) {
-            case id: case literal: case num: case string: case bool: case type: case eq: case arrow:
-                sentence.add(token);
-                break;
-            case newline:
-                System.out.print("CURRENT SENTENCE: ");
-                System.out.println(sentence);
-                if (sentence.size() != 5) addError(ErrorType.InvalidSentenceError);
-                else {
-                    String result = "";
-                    // variable type
-                    if (sentence.get(4).type == TokenType.type) result += sentence.get(4).toJava(true);
-                    else addError(ErrorType.InvalidSentenceError);
-                    // variable name
-                    if (sentence.get(0).type == TokenType.id) result += sentence.get(0).toJava(true);
-                    else addError(ErrorType.InvalidSentenceError);
-                    // equal sign
-                    if (sentence.get(1).type == TokenType.eq) result += sentence.get(1).toJava(true);
-                    else addError(ErrorType.IncompleteExpressionError);
-                    // literal
-                    if (
-                            sentence.get(2).type == TokenType.literal ||
-                            sentence.get(2).type == TokenType.num ||
-                            sentence.get(2).type == TokenType.string ||
-                            sentence.get(2).type == TokenType.bool
-                    ) result += sentence.get(2).toJava(false);
-                    else addError(ErrorType.InvalidSentenceError);
-                    // checking for the arrow
-                    if (sentence.get(3).type != TokenType.arrow) addError(ErrorType.IncompleteExpressionError);
-                    // type matching
-                    if (!areMatched(sentence.get(2).type, sentence.get(4).text)) addError(ErrorType.TypeMismatchError);
-                    // add the variable to the scope
-                    // add the lines to the output
-                    if (!lineHasErrors()) {
-                        scopes.addVariable(sentence.get(0).text, Type.getType(sentence.get(4).text));
-                        addToOutput(result, true);
-                    }
-                }
-                dropState();
-                clearSentence();
-                newline();
-                break;
-            default:
-                addError(ErrorType.SyntaxError);
-        }
+
+
+
+    public void var_def(String[] tokens) {
+
     }
-    private void var_assign() {}
-    private void func_dec() {}
-    private void command() {}
-    private void id() {}
-    private void if_stmt() {}
-    private void for_loop() {}
-    private void while_loop() {}
-    private void newline() {
+    public void newline() {
         line++;
     }
 
 
-    // Function Toolkit
+
+
+
+    // Internal Function Toolkit
+
+
+
+
 
     /**
      * Empties the current sentence
      */
     private void clearSentence() {
         sentence.clear();
-    }
-
-    private void addError(ErrorType t) {
-        addError(t, line);
-    }
-
-    private void addError(ErrorType t, int line) {
-        Error err = new Error(line, t);
-        for (Error e: errors) if (e.equals(err)) return;
-        errors.add(err);
     }
 
     /**
@@ -191,13 +175,13 @@ public class Parser {
     }
 
     private void addToOutput(String s, boolean semicolon) {
-        String temp = "";
+        StringBuilder temp = new StringBuilder();
         for (int i = 0; i < scopes.getScopeLevel(); i++) {
-            temp += "\t";
+            temp.append("\t");
         }
-        temp += s;
-        if (semicolon) temp += ";";
-        output.add(temp);
+        temp.append(s);
+        if (semicolon) temp.append(";");
+        output.add(temp.toString());
     }
 
     private boolean areMatched(TokenType tokenType, String type) {
@@ -218,7 +202,12 @@ public class Parser {
 
 
 
+
+
     // Internal Classes
+
+
+
 
 
     private static class Token {
@@ -267,15 +256,21 @@ public class Parser {
     private static class Error {
         public int line;
         public ErrorType type;
+        public String msg;
 
-        public Error(int line, ErrorType type) {
+        public Error(int line, ErrorType type, String msg) {
             this.line = line;
             this.type = type;
+            this.msg = msg;
         }
 
         @Override
         public String toString() {
-            return type.name() + " at line " + Integer.toString(line);
+            return  type.name() +
+                    " at line " +
+                    Integer.toString(line) +
+                    ": " +
+                    msg;
         }
 
         @Override
@@ -294,10 +289,3 @@ public class Parser {
     }
 
 }
-
-/**
- * Note: architecture for functions:
- * default case -> wrong type of token for this state (add error; skip to the next line)
- * in other cases, add the relevant bit to the top of the deque
- * whe we reach the terminator, pop stateStack and remove the sentence from the bottom of the deque
- */
