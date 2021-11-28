@@ -8,6 +8,9 @@ public enum TokenType {
     newline,
     type,
     literal,
+    num,
+    string,
+    bool,
     eq,
     arrow,
 

@@ -4,10 +4,13 @@ package LangTools;
  * Represents all types in the language
  */
 public enum Type {
-    num,
-    string,
-    bool,
-    CHONGUIIII;
+    num("num"),
+    string("string"),
+    bool("bool"),
+    CHONGUIIII("CHONGUIIII");
+
+    Type(String s) {}
+
 
     public static Type getType(String s) {
         switch (s) {
@@ -17,5 +20,10 @@ public enum Type {
             default:
         }
         return CHONGUIIII;
+    }
+
+    // TODO implement this
+    public static boolean isType() {
+        return false;
     }
 }

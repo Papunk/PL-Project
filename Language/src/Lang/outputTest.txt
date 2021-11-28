@@ -3,6 +3,7 @@ import java.util.*;
 public class Main {
 	public static void main(String[] args) {
 		Double my_var = 29834;
+		Boolean hello = "Hello";
 		Boolean hello = true;
 	}
 }

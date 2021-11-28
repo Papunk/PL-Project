@@ -3,6 +3,7 @@ package Lang;
 import LangTools.*;
 
 import java.io.*;
+import java.sql.SQLOutput;
 import java.util.*;
 
 public class Parser {
@@ -43,7 +44,7 @@ public class Parser {
      */
     public void receive(String text, TokenType type) {
         token = new Token(text, type);
-        System.out.println(token);
+//        System.out.println(token);
 //        System.out.println(currentSentence);
         switch (states.peek()) {
             case program: break;
@@ -105,7 +106,7 @@ public class Parser {
     private void stmt() {}
     private void var_def() {
         switch (token.type) {
-            case id: case literal: case type: case eq: case arrow:
+            case id: case literal: case num: case string: case bool: case type: case eq: case arrow:
                 sentence.add(token);
                 break;
             case newline:
@@ -124,17 +125,25 @@ public class Parser {
                     if (sentence.get(1).type == TokenType.eq) result += sentence.get(1).toJava(true);
                     else addError(ErrorType.IncompleteExpressionError);
                     // literal
-                    if (sentence.get(2).type == TokenType.literal) result += sentence.get(2).toJava(false);
+                    if (
+                            sentence.get(2).type == TokenType.literal ||
+                            sentence.get(2).type == TokenType.num ||
+                            sentence.get(2).type == TokenType.string ||
+                            sentence.get(2).type == TokenType.bool
+                    ) result += sentence.get(2).toJava(false);
                     else addError(ErrorType.InvalidSentenceError);
                     // checking for the arrow
                     if (sentence.get(3).type != TokenType.arrow) addError(ErrorType.IncompleteExpressionError);
-
+                    // type matching
+                    if (!areMatched(sentence.get(2).type, sentence.get(4).text)) addError(ErrorType.TypeMismatchError);
+                    // add the variable to the scope
+                    // add the lines to the output
                     if (!lineHasErrors()) {
                         scopes.addVariable(sentence.get(0).text, Type.getType(sentence.get(4).text));
                         addToOutput(result, true);
                     }
-                    dropState();
                 }
+                dropState();
                 clearSentence();
                 newline();
                 break;
@@ -191,6 +200,16 @@ public class Parser {
         output.add(temp);
     }
 
+    private boolean areMatched(TokenType tokenType, String type) {
+        switch (type) {
+            case "bool": return tokenType == TokenType.bool;
+            case "string": return tokenType == TokenType.string;
+            case "num": return tokenType == TokenType.num;
+        }
+        return false;
+    }
+
+
 
     // TODO make this debug function
     private void printState() {
@@ -236,7 +255,7 @@ public class Parser {
                 case eq:
                     result = "=";
                     break;
-                case id: case literal:
+                case id: case literal: case num: case string: case bool:
                     result = this.text;
                     break;
             }

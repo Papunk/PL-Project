@@ -23,7 +23,7 @@ import LangTools.*;
 
 // types
 num = [0-9]+\.[0-9]+|[0-9]*
-string = \"*\"
+string = \".*?\"
 bool = true|false
 literal = {num}|{string}|{bool}
 //
@@ -51,8 +51,16 @@ let {
 
 // literals
 
-{literal} {
-    parser.receive(yytext(), TokenType.literal);
+{bool} {
+    parser.receive(yytext(), TokenType.bool);
+}
+
+{num} {
+    parser.receive(yytext(), TokenType.num);
+}
+
+{string} {
+    parser.receive(yytext(), TokenType.string);
 }
 
 
