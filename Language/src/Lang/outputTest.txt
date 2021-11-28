@@ -2,5 +2,8 @@ import java.io.*;
 import java.util.*;
 public class Main {
 	public static void main(String[] args) {
+		Double my_var = 29834;
+		String hello = "Hello";
+		Boolean fronke = true;
 	}
 }

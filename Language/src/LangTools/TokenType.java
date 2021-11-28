@@ -13,5 +13,4 @@ public enum TokenType {
     bool,
     eq,
     arrow,
-
 }

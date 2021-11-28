@@ -39,7 +39,7 @@ public class ScopeSystem {
      * @param type of the variable
      * @return true if the operation was successful and false otherwise
      */
-    public boolean addVariable(String name, Type type) {
+    public boolean addVariable(String name, String type) {
         Variable variable = new Variable(name, type);
         if (isValid(variable)) return scopeStack.peek().addVariable(variable);
         return false;
@@ -92,6 +92,8 @@ public class ScopeSystem {
         }
 
         public boolean addVariable(Variable variable) {
+            System.out.println(variables);
+            System.out.println(variable);
             return variables.add(variable);
         }
 

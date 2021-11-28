@@ -114,7 +114,7 @@ public class Parser {
     /**
      * Divides a string by whitespace
      * @param s the string to divide
-     * @return the divided string as a list
+     * @return the divided string as an array
      */
     public String[] split(String s) {
         return s.split("\\s+");
@@ -142,14 +142,16 @@ public class Parser {
 
 
     public void var_def(String[] tokens) {
-        // ensure that the types are matched
-        boolean success = scopeSys.addVariable(tokens[0], Type.valueOf(tokens[4]));
+        //TODO ensure that the types are matched
+//        System.out.println(Arrays.toString(tokens));
+        String name = tokens[1], eq = tokens[2], value = tokens[3], type = tokens[5];
+        boolean success = scopeSys.addVariable(name, type);
         if (success) {
-            String temp = tokens[0]; // turn the relevant tokens to java with toJava()
-            output.add(temp);
+            String temp = toJavaWS(type, TokenType.type) + toJavaWS(name, TokenType.id) + toJavaWS(eq, TokenType.eq) + toJava(value, TokenType.literal);
+            addToOutput(temp, true);
         }
         else {
-            addError(ErrorType.OverloadedDefinitionError, "");
+            addError(ErrorType.OverloadedDefinitionError, "Cannot redeclare variable '" + name + " -> " + type + "'");
         }
     }
     public void newline() {
@@ -163,14 +165,8 @@ public class Parser {
     // Internal Function Toolkit
 
 
-    /**
-     * Transforms types and keywords from PAJeLang to Java
-     * @param s the string to be transformed
-     * @return the transformed string
-     */
-    private String toJava(String s) {
-        return ""; //TODO implement func
-    }
+
+
 
 //    /**
 //     * Empties the current sentence
@@ -206,9 +202,49 @@ public class Parser {
         return false;
     }
 
+    /**
+     * Turn string to java code without a space at the end
+     */
+    public String toJava(String text, TokenType type) {
+        return toJava(text, type, false);
+    }
+
+    /**
+     * Turn string to java code with a space at the end
+     */
+    public String toJavaWS(String text, TokenType type) {
+        return toJava(text, type, true);
+    }
+
+    public String toJava(String text, TokenType type, boolean space) {
+        String result = "<NIL>";
+        switch (type) {
+            case type:
+                switch (text) {
+                    case "bool":
+                        result = "Boolean";
+                        break;
+                    case "num":
+                        result = "Double";
+                        break;
+                    case "string":
+                        result = "String";
+                        break;
+                }
+                break;
+            case eq:
+                result = "=";
+                break;
+            case id: case literal:
+                result = text;
+                break;
+        }
+        if (space) result += " ";
+        return result ;
+    }
 
 
-    // TODO make this debug function
+
     private void printState() {
 
     }
@@ -238,32 +274,32 @@ public class Parser {
             return "'" + text + "' <"+ type.name() + ">";
         }
 
-        public String toJava(boolean space) {
-            String result = "<NIL>";
-            switch (type) {
-                case type:
-                    switch (text) {
-                        case "bool":
-                            result = "Boolean";
-                            break;
-                        case "num":
-                            result = "Double";
-                            break;
-                        case "string":
-                            result = "String";
-                            break;
-                    }
-                    break;
-                case eq:
-                    result = "=";
-                    break;
-                case id: case literal: case num: case string: case bool:
-                    result = this.text;
-                    break;
-            }
-            if (space) result += " ";
-            return result ;
-        }
+//        public String toJava(boolean space) {
+//            String result = "<NIL>";
+//            switch (type) {
+//                case type:
+//                    switch (text) {
+//                        case "bool":
+//                            result = "Boolean";
+//                            break;
+//                        case "num":
+//                            result = "Double";
+//                            break;
+//                        case "string":
+//                            result = "String";
+//                            break;
+//                    }
+//                    break;
+//                case eq:
+//                    result = "=";
+//                    break;
+//                case id: case literal: case num: case string: case bool:
+//                    result = this.text;
+//                    break;
+//            }
+//            if (space) result += " ";
+//            return result ;
+//        }
     }
 
     private static class Error {
