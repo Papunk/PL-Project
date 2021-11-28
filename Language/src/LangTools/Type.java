@@ -11,17 +11,6 @@ public enum Type {
 
     Type(String s) {}
 
-
-    public static Type getType(String s) {
-        switch (s) {
-            case "num": return num;
-            case "bool": return bool;
-            case "string": return string;
-            default:
-        }
-        return CHONGUIIII;
-    }
-
     // TODO implement this
     public static boolean isType() {
         return false;

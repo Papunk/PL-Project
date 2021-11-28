@@ -34,7 +34,7 @@ public class ScopeSystem {
     }
 
     /**
-     * Adds a variable if it does not exist in any scope
+     * Adds a variable to the current if it does not exist in any scope
      * @param name of the variable
      * @param type of the variable
      * @return true if the operation was successful and false otherwise

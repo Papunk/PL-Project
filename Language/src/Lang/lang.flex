@@ -36,6 +36,8 @@ type = num|string|bool
 commands = print | display | read | make
 comment = \/\/.*
 value = {id}|{literal}
+lb = \{
+rb = \}
 // keywords
 if = if
 for = for
@@ -73,6 +75,9 @@ args = {args},|{arg} // check this one lol
     {newline} {
         parser.newline();
     }
+
+    {lb} {}
+    {rb} {}
 
     // error
     {other} {

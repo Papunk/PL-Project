@@ -5,5 +5,6 @@ public enum ErrorType {
     InvalidSentenceError,
     IncompleteExpressionError,
     TypeMismatchError,
+    OverloadedDefinitionError,
     ParethesisMismatchError
 }

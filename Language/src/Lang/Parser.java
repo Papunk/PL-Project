@@ -3,7 +3,6 @@ package Lang;
 import LangTools.*;
 
 import java.io.*;
-import java.sql.SQLOutput;
 import java.util.*;
 
 public class Parser {
@@ -19,10 +18,10 @@ public class Parser {
 
 
     private final List<String> output = new ArrayList<>();
-    private final ScopeSystem scopes = new ScopeSystem();
+    private final ScopeSystem scopeSys = new ScopeSystem();
     private final List<Error> errors = new ArrayList<>();
 //    private final Stack<State> states = new Stack<>();
-    private final List<Token> sentence = new ArrayList<>();
+//    private final List<Token> sentence = new ArrayList<>();
     private Token token = null;
     private int line = 1;
 
@@ -41,9 +40,9 @@ public class Parser {
         addToOutput("import java.util.*", true);
         // add our custom packages
         addToOutput("public class Main {", false);
-        scopes.enterScope();
+        scopeSys.enterScope();
         addToOutput("public static void main(String[] args) {", false);
-        scopes.enterScope();
+        scopeSys.enterScope();
 //        states.push(State.program);
     }
 
@@ -96,7 +95,7 @@ public class Parser {
             return;
         }
         for (int i = 0; i < 2; i++) {
-            scopes.leaveScope();
+            scopeSys.leaveScope();
             addToOutput("}", false);
         }
         try {
@@ -143,7 +142,15 @@ public class Parser {
 
 
     public void var_def(String[] tokens) {
-
+        // ensure that the types are matched
+        boolean success = scopeSys.addVariable(tokens[0], Type.valueOf(tokens[4]));
+        if (success) {
+            String temp = tokens[0]; // turn the relevant tokens to java with toJava()
+            output.add(temp);
+        }
+        else {
+            addError(ErrorType.OverloadedDefinitionError, "");
+        }
     }
     public void newline() {
         line++;
@@ -156,15 +163,21 @@ public class Parser {
     // Internal Function Toolkit
 
 
-
-
-
     /**
-     * Empties the current sentence
+     * Transforms types and keywords from PAJeLang to Java
+     * @param s the string to be transformed
+     * @return the transformed string
      */
-    private void clearSentence() {
-        sentence.clear();
+    private String toJava(String s) {
+        return ""; //TODO implement func
     }
+
+//    /**
+//     * Empties the current sentence
+//     */
+//    private void clearSentence() {
+//        sentence.clear();
+//    }
 
     /**
      * Checks if the current line contains an error
@@ -176,7 +189,7 @@ public class Parser {
 
     private void addToOutput(String s, boolean semicolon) {
         StringBuilder temp = new StringBuilder();
-        for (int i = 0; i < scopes.getScopeLevel(); i++) {
+        for (int i = 0; i < scopeSys.getScopeLevel(); i++) {
             temp.append("\t");
         }
         temp.append(s);
