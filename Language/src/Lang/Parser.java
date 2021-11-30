@@ -173,6 +173,7 @@ public class Parser {
     public void func_def(String[] tokens) {
         if (scopeSys.atTopLevel()) { // ensures that all functions are declared globally
             String name = new StringBuilder(tokens[1]).deleteCharAt(tokens[1].length() - 1).toString(), type = tokens[tokens.length - 1];
+            Variable[] args = args(Arrays.copyOfRange(tokens, 2,tokens.length - 2));
 
 
             StringBuilder temp = new StringBuilder();
@@ -181,8 +182,16 @@ public class Parser {
         }
         else addError(ErrorType.SyntaxError, "Functions can only be declared at the top level");
     }
-    private void args(String[] tokens) {
-
+    // TODO implement this
+    private Variable[] args(String[] tokens) {
+        if (tokens.length % 2 != 0) addError(ErrorType.IncorrectArgumentsError, "Arguments are wrong");
+        Variable[] args = new Variable[tokens.length / 2];
+        for (int i = 0; i < tokens.length; i += 2) {
+            //tokens[i] is the type
+            //tokens[i+1] with the comma removed is the variable named
+            // make variable
+        }
+        return args;
     }
     public void return_stmt(String[] tokens) {
         if (scopeSys.contains(ScopeType.func)) { // used within a function

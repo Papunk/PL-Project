@@ -32,7 +32,7 @@ public class Main {
 			}
 			return someNUM;
 		}
-	func secondFunction: num someNUM, bool aBool -> num
+	func secondFunction: num someNUM -> num
 		{
 			if (someBoolean)
 			{

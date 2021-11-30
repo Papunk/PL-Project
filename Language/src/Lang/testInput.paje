@@ -9,7 +9,7 @@ func getATenSometimes: num someNUM, bool aBool -> num {
     return someNUM
 }
 
-func secondFunction: num someNUM, bool aBool -> num {
+func secondFunction: num someNUM -> num {
     if someBoolean then {
         return 10
     }

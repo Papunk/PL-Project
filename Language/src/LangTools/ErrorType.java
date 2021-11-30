@@ -6,5 +6,6 @@ public enum ErrorType {
     OverloadedDefinitionError,
     ParenthesisMismatchError,
     BracketMismatchError,
-    UndeclaredIdentifierError
+    UndeclaredIdentifierError,
+    IncorrectArgumentsError
 }

@@ -15,4 +15,10 @@ public class Function {
         Function other = (Function) o;
         return name.equals(other.name) && args.equals(other.args);
     }
+
+    // TODO implement this
+    public boolean hasSameArgsAs(Function other) {
+
+        return false;
+    }
 }
