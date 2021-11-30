@@ -13,15 +13,15 @@ public class ScopeSystem {
 
     public ScopeSystem() {
         currentScopeLevel = 0;
-        scopeStack.add(new Scope(0)); // create root scope
+        scopeStack.add(new Scope(0, ScopeType.main)); // create program scope
         // TODO add built in types to parent scope
     }
 
     /**
      * Enables a new stack one level below the current one
      */
-    public void enterScope() {
-        scopeStack.add(new Scope(++currentScopeLevel));
+    public void enterScope(ScopeType type) {
+        scopeStack.add(new Scope(++currentScopeLevel, type));
     }
 
     /**
@@ -96,6 +96,13 @@ public class ScopeSystem {
         return currentScopeLevel;
     }
 
+    public boolean contains(ScopeType type) {
+        for (Scope s: scopeStack) {
+            if (s.getScopeType() == type) return true;
+        }
+        return false;
+    }
+
 
 
     /**
@@ -104,11 +111,13 @@ public class ScopeSystem {
      */
     static class Scope {
         private final int scopeLevel;
+        private final ScopeType type;
         private final HashSet<Variable> variables = new HashSet<>();
         private final HashSet<Function> functions = new HashSet<>();
 
-        public Scope(int scopeLevel) {
+        public Scope(int scopeLevel, ScopeType type) {
             this.scopeLevel = scopeLevel;
+            this.type = type;
         }
 
         public boolean addVariable(Variable variable) {
@@ -131,6 +140,10 @@ public class ScopeSystem {
                 if (f.equals(function)) return true;
             }
             return false;
+        }
+
+        public ScopeType getScopeType() {
+            return type;
         }
     }
 }

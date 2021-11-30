@@ -2,8 +2,11 @@ let my_num_var = 29834 -> num
 let hello = "Hello" -> string
 let someBoolean = true -> bool
 
-func myFunc(num someNUm) -> void {
-
+func getATenSometimes(num someNUm) -> num {
+    if someBoolean then {
+        return 10
+    }
+    return someNUM
 }
 
 
@@ -19,6 +22,7 @@ while someBoolean && someotherBool do {
     for i from 10 to 10 do {
         if false then {
             let mySTR = "HelloThere" -> string
+            break
         }
     }
 }

@@ -5,8 +5,13 @@ public class Main {
 		Double my_num_var = 29834;
 		String hello = "Hello";
 		Boolean someBoolean = true;
-		func myFunc() -> void
+		func getATenSometimes(num someNUm) -> num
 		{
+			if (someBoolean)
+			{
+				return 10;
+			}
+			return someNUM;
 		}
 		Boolean someotherBool = true;
 		Double aNumber = 34.2;
@@ -22,6 +27,7 @@ public class Main {
 				if (false)
 				{
 					String mySTR = "HelloThere";
+					break;
 				}
 			}
 		}

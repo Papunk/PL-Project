@@ -21,6 +21,7 @@ import LangTools.*;
     System.out.println("\nLexer: End of execution");
 %eof}
 
+// TODO DEFINE EXPRESSIONS (BOTH MATHEMATICAL AND BOOLEAN =====================================
 // types
 num = [0-9]+\.[0-9]+|[0-9]*
 int = [1-9]+[0-9]*
@@ -37,8 +38,10 @@ condition = {value}{wse}{bool_op}{wse}{value}|{value} // TODO refine this
 arrow = ->
 eq = =
 type = num|string|bool
-func_rtrn = {type}|void
-commands = print | display | read | make
+func_return = {type}|void
+return_stmt = {wse}(return{ws}{value}|return)
+commands = print|display|read|make
+scope_ctrl = break|continue
 comment = \/\/{all}({newline}|{wse})
 value = {id}|{literal} // TODO expand to include function calls
 lb = \{
@@ -60,14 +63,16 @@ if_stmt = {wse}if{ws}{condition}{ws}then
 for_loop = {wse}for{ws}{id}{ws}from{ws}{int}{ws}to{ws}{int}{ws}do
 while_loop = {wse}while{ws}{condition}{ws}do
 // functions
-func_def = {wse}func{ws}{id}{wse}{lp}{wse}{args}{wse}{rp}{ws}{arrow}{ws}{func_rtrn}
+func_def = {wse}func{ws}{id}{wse}{lp}{wse}{args}{wse}{rp}{ws}{arrow}{ws}{func_return}
 func_call = {wse}{id}\(\)
 arg = {type}{ws}{value}
-args = {arg},{wse}*{arg}|{wse}
+args = ({arg},{wse})*{arg}|{wse}
 // top level
 stmt = {var_assign}{var_def}{if_stmt}{for_loop}{while_loop}{func_def}
 scope = {lb}{newline}{stmt}{newline}{rb}
 
+%state LOOP
+%state FUNC
 
 
 %%
@@ -90,27 +95,33 @@ scope = {lb}{newline}{stmt}{newline}{rb}
 
     {while_loop} {
         parser.while_loop(parser.split(yytext()));
+        yybegin(LOOP);
     }
 
     {for_loop} {
         parser.for_loop(parser.split(yytext()));
+        yybegin(LOOP);
     }
 
     {func_def} {
         parser.func_def(parser.split(yytext()));
+        yybegin(FUNC);
     }
 
+    {return_stmt} {
+        parser.return_stmt(parser.split(yytext()));
+    }
 
-    // could be a function call or a variable assignment
-    {id} {}
-
+    {scope_ctrl} {
+        parser.scope_ctrl(parser.split(yytext()));
+    }
 
     {newline} {
         parser.newline();
     }
 
     {lb} {
-        parser.lb();
+        parser.lb(ScopeType.main);
     }
 
     {rb} {
@@ -119,12 +130,22 @@ scope = {lb}{newline}{stmt}{newline}{rb}
 
     {ignore} {}
 
-    // error
+    // error | Problem: matches everything (longest match rule)
     // {other} {
     //     parser.addError(ErrorType.SyntaxError, "Grammar does not match known pattern: " + yytext());
     // }
 }
 
-// <CONDITIONAL_BLOCK> {
-//     {}
-// }
+<LOOP> {
+    {lb} {
+        parser.lb(ScopeType.loop);
+        yybegin(YYINITIAL);
+    }
+}
+
+<FUNC> {
+    {lb} {
+        parser.lb(ScopeType.func);
+        yybegin(YYINITIAL);
+    }
+}
