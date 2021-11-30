@@ -134,14 +134,14 @@ public class ScopeSystem {
 
         public boolean contains(Variable variable) {
             for (Variable v: variables) {
-                if (v.equals(variable)) return true;
+                if (v.hasSameNameAs(variable)) return true;
             }
             return false;
         }
 
         public boolean contains(Function function) {
             for (Function f: functions) {
-                if (f.equals(function)) return true;
+                if (f.hasSameNameAs(function)) return true;
             }
             return false;
         }
