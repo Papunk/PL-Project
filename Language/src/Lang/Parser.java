@@ -3,6 +3,7 @@ package Lang;
 import LangTools.*;
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class Parser {
@@ -124,6 +125,7 @@ public class Parser {
     public void var_assign(String[] tokens) {
         //TODO check that the new value conforms to the type
     }
+    // TODO check if variables in ifs and fors have been previously defined
     public void if_stmt(String[] tokens) {
         cond_block("if", tokens);
     }
@@ -142,7 +144,21 @@ public class Parser {
         addToOutput(temp.deleteCharAt(temp.length() - 1) + ")", false);
     }
     private void condition(String[] tokens) {
-        // TODO determine the makeup by the number of things
+        // match parenthesis
+        List<String> tokenList = Arrays.asList(tokens);
+        ArrayList<Integer> indicesWithOperators = new ArrayList<>();
+        for (int i = 0; i < tokens.length; i++) {
+            String token = tokens[i];
+            if (token.equals("||") || token.equals("&&")) {
+                indicesWithOperators.add(i);
+            }
+        }
+        // split by the indices obtained and sent the function to bool_exp() for processing
+        String[] s = (String[]) tokenList.toArray();
+
+    }
+    private void bool_exp(String[] tokens) {
+        // process boolean expressions based on their legality
     }
     public void for_loop(String[] tokens) {
         String iterationVar = tokens[1], firstBound = tokens[3], secondBound = tokens[5];
@@ -153,8 +169,12 @@ public class Parser {
         String temp = "for (int " + iterationVar + " = " + firstBound + "; " + iterationVar + " <= " + secondBound + "; " + iterationVar + operator + ")";
         addToOutput(temp, false);
     }
-    // TODO add functions
-    // Consider holding info about existing types in the scopeSys
+    // TODO prevent function definitions within function body
+    public void func_def(String[] tokens) {
+        StringBuilder temp = new StringBuilder();
+        for (String s: tokens) temp.append(s + " ");
+        addToOutput(temp.deleteCharAt(temp.length() - 1).toString(), false);
+    }
     public void lb() {
         addToOutput("{", false);
         scopeSys.enterScope();

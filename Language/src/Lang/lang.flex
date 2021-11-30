@@ -37,11 +37,14 @@ condition = {value}{wse}{bool_op}{wse}{value}|{value} // TODO refine this
 arrow = ->
 eq = =
 type = num|string|bool
+func_rtrn = {type}|void
 commands = print | display | read | make
 comment = \/\/{all}({newline}|{wse})
 value = {id}|{literal} // TODO expand to include function calls
 lb = \{
 rb = \}
+lp = \(
+rp = \)
 other = .*? // catch-all
 ignore = {ws}|{comment} // things to be matched but ignored
 // spaces
@@ -57,10 +60,10 @@ if_stmt = {wse}if{ws}{condition}{ws}then
 for_loop = {wse}for{ws}{id}{ws}from{ws}{int}{ws}to{ws}{int}{ws}do
 while_loop = {wse}while{ws}{condition}{ws}do
 // functions
-func_def = {wse}{id}{ws}\({wse}{args}{wse}\)
+func_def = {wse}func{ws}{id}{wse}{lp}{wse}{args}{wse}{rp}{ws}{arrow}{ws}{func_rtrn}
 func_call = {wse}{id}\(\)
 arg = {type}{ws}{value}
-args = {args},|{arg} // check this one lol
+args = {arg},{wse}*{arg}|{wse}
 // top level
 stmt = {var_assign}{var_def}{if_stmt}{for_loop}{while_loop}{func_def}
 scope = {lb}{newline}{stmt}{newline}{rb}
@@ -91,6 +94,10 @@ scope = {lb}{newline}{stmt}{newline}{rb}
 
     {for_loop} {
         parser.for_loop(parser.split(yytext()));
+    }
+
+    {func_def} {
+        parser.func_def(parser.split(yytext()));
     }
 
 

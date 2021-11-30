@@ -1,6 +1,13 @@
 let my_num_var = 29834 -> num
 let hello = "Hello" -> string
 let someBoolean = true -> bool
+
+func myFunc() -> void {
+    
+}
+
+
+
 let someotherBool = true -> bool
 let aNumber = 34.2 -> num
 

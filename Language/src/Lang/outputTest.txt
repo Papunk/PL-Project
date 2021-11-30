@@ -5,6 +5,9 @@ public class Main {
 		Double my_num_var = 29834;
 		String hello = "Hello";
 		Boolean someBoolean = true;
+		func myFunc() -> void
+		{
+		}
 		Boolean someotherBool = true;
 		Double aNumber = 34.2;
 		while (someBoolean && someotherBool)
