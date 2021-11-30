@@ -23,38 +23,48 @@ import LangTools.*;
 
 // types
 num = [0-9]+\.[0-9]+|[0-9]*
-string = \".*?\"
+int = [1-9]+[0-9]*
+string = \"{all}\"
 bool = true|false
 literal = {num}|{string}|{bool}
 // stuff
-id = [A-Za-z0-9_\-]+
+all = .*?
+id = [A-Za-z0-9_]+
 operator = \+ | \- | \* | \/
-rel_op = < | > | ==
+rel_op = <|>|==|<=|>=|\!=
+bool_op = {rel_op}|&&|\|\||\! // functions that return a boolean
+condition = {value}{wse}{bool_op}{wse}{value}|{value} // TODO refine this
 arrow = ->
 eq = =
 type = num|string|bool
 commands = print | display | read | make
-comment = \/\/.*
-value = {id}|{literal}
+comment = \/\/{all}({newline}|{wse})
+value = {id}|{literal} // TODO expand to include function calls
 lb = \{
 rb = \}
-// keywords
-if = if
-for = for
-while = while
+other = .*? // catch-all
+ignore = {ws}|{comment} // things to be matched but ignored
 // spaces
 tab = \t
 newline = \n
-ws = [ ]+
-wse = [ ]*
-other = .*?
-ignore = {ws}|{comment}
-// terminals
-var_def = let{ws}{var_assign}
-var_assign = {id}{ws}{eq}{ws}{value}{ws}{arrow}{ws}{type}
-func_call = {id}{ws}\({wse}{args}{wse}\)
+ws = [ ]+ // whitespace
+wse = [ ]* // whitespace (counting empty)
+// variables
+var_def = {wse}let{ws}{var_assign}
+var_assign = {wse}{id}{ws}{eq}{ws}{value}{ws}{arrow}{ws}{type}
+// control flow
+if_stmt = {wse}if{ws}{condition}{ws}then
+for_loop = {wse}for{ws}{id}{ws}from{ws}{int}{ws}to{ws}{int}{ws}do
+while_loop = {wse}while{ws}{condition}{ws}do
+// functions
+func_def = {wse}{id}{ws}\({wse}{args}{wse}\)
+func_call = {wse}{id}\(\)
 arg = {type}{ws}{value}
 args = {args},|{arg} // check this one lol
+// top level
+stmt = {var_assign}{var_def}{if_stmt}{for_loop}{while_loop}{func_def}
+scope = {lb}{newline}{stmt}{newline}{rb}
+
 
 
 %%
@@ -62,27 +72,52 @@ args = {args},|{arg} // check this one lol
 
 <YYINITIAL> {
 
+// IDEA: have different versions of {var_def} to identify defs with bools, ints, etc and then send that info to parser.var_def()
     {var_def} {
         parser.var_def(parser.split(yytext()));
     }
 
-    // could be a function call or a variable assignment
-    {id} {
+    {var_assign} {
 
     }
+
+    {if_stmt} {
+        parser.if_stmt(parser.split(yytext()));
+    }
+
+    {while_loop} {
+        parser.while_loop(parser.split(yytext()));
+    }
+
+    {for_loop} {
+        parser.for_loop(parser.split(yytext()));
+    }
+
+
+    // could be a function call or a variable assignment
+    {id} {}
 
 
     {newline} {
         parser.newline();
     }
 
-    {lb} {}
-    {rb} {}
+    {lb} {
+        parser.lb();
+    }
 
-    // error
-    {other} {
-        parser.addError(ErrorType.SyntaxError, "Grammar does not match known pattern");
+    {rb} {
+        parser.rb();
     }
 
     {ignore} {}
+
+    // error
+    // {other} {
+    //     parser.addError(ErrorType.SyntaxError, "Grammar does not match known pattern: " + yytext());
+    // }
 }
+
+// <CONDITIONAL_BLOCK> {
+//     {}
+// }

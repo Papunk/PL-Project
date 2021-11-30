@@ -8,6 +8,7 @@ import java.util.*;
  */
 public class ScopeSystem {
     private final Stack<Scope> scopeStack = new Stack<>();
+
     private int currentScopeLevel; // 0 maps to one scope
 
     public ScopeSystem() {
@@ -26,11 +27,13 @@ public class ScopeSystem {
     /**
      * Deactivates current stack and enables the previous one
      */
-    public void leaveScope() {
-        if (currentScopeLevel > 0) {
+    public boolean leaveScope() {
+        if (!isEmpty()) {
             scopeStack.pop();
             currentScopeLevel--;
+            return true;
         }
+        return false;
     }
 
     /**
@@ -57,6 +60,11 @@ public class ScopeSystem {
         return false;
     }
 
+    public boolean hasVariable(String name) {
+        return !isValid(new Variable(name,""));
+    }
+
+
     // these two functions could be condensed into one:
 
     private boolean isValid(Variable variable) {
@@ -77,6 +85,18 @@ public class ScopeSystem {
         return currentScopeLevel;
     }
 
+    /**
+     * @return true if there is only the base scope and false otherwise
+     */
+    public boolean isEmpty() {
+        return currentScopeLevel == 0;
+    }
+
+    public int getCurrentScopeLevel() {
+        return currentScopeLevel;
+    }
+
+
 
     /**
      * This class internally represents a scope.
@@ -92,8 +112,6 @@ public class ScopeSystem {
         }
 
         public boolean addVariable(Variable variable) {
-            System.out.println(variables);
-            System.out.println(variable);
             return variables.add(variable);
         }
 

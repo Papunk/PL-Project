@@ -13,7 +13,7 @@ public class Variable {
     @Override
     public boolean equals(Object o) {
         Variable other = (Variable) o;
-        return name.equals(other.name) && type.equals(other.type);
+        return name.equals(other.name);
     }
 
     @Override

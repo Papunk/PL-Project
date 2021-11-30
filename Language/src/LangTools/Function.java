@@ -3,6 +3,7 @@ package LangTools;
 public class Function {
     private String name;
     private Variable[] args;
+    private String returnType;
 
     public Function(String name, Variable[] args) {
         this.name = name;

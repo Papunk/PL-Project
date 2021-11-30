@@ -1,3 +1,17 @@
-let my_var = 29834 -> num
+let my_num_var = 29834 -> num
 let hello = "Hello" -> string
-let fronke = true  -> bool
+let someBoolean = true -> bool
+let someotherBool = true -> bool
+let aNumber = 34.2 -> num
+
+while someBoolean && someotherBool do {
+    let aBoolean = true  -> bool
+    if true then {
+        let abh = 29834 -> num
+    }
+    for i from 10 to 10 do {
+        if false then {
+            let mySTR = "HelloThere" -> string
+        }
+    }
+}

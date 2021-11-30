@@ -20,10 +20,8 @@ public class Parser {
     private final List<String> output = new ArrayList<>();
     private final ScopeSystem scopeSys = new ScopeSystem();
     private final List<Error> errors = new ArrayList<>();
-//    private final Stack<State> states = new Stack<>();
-//    private final List<Token> sentence = new ArrayList<>();
-    private Token token = null;
     private int line = 1;
+    private int tabLevel;
 
 
 
@@ -36,56 +34,25 @@ public class Parser {
 
 
     public Parser() {
+        tabLevel = 0;
         addToOutput("import java.io.*", true);
         addToOutput("import java.util.*", true);
         // add our custom packages
         addToOutput("public class Main {", false);
-        scopeSys.enterScope();
+        tabLevel++;
         addToOutput("public static void main(String[] args) {", false);
-        scopeSys.enterScope();
-//        states.push(State.program);
+        tabLevel++;
     }
 
-    /**
-     * Receives matched input as token from the lexer from the lexer
-     * @param text input from the lexer
-     * @param state the state of the parser
-     */
-    public void receive(String text, TokenType type, State state) {
-//        setState(state);
-        receive(text, type);
-    }
-
-    /**
-     * Receives matched input without changing state
-     * @param text input from the lexer
-     */
-    public void receive(String text, TokenType type) {
-        token = new Token(text, type);
-//        System.out.println(token);
-//        System.out.println(currentSentence);
-    }
-
-//    /**
-//     * Sets the current parser state
-//     * @param state the state of the parser
-//     */
-//    public void setState(State state) {
-//        states.push(state);
-//    }
-//
-//    /**
-//     * Drops the current state
-//     */
-//    public void dropState() {
-//        // TODO dont destroy the base state
-//        states.pop();
+//    public void receive(String[] input) {
+//        sentence.addAll(Arrays.asList(input));
 //    }
 
     /**
      * Writes the output to an external file
      */
     public void end() {
+        if (!scopeSys.isEmpty()) addError(ErrorType.BracketMismatchError, "Must close all brackets; missing " + scopeSys.getCurrentScopeLevel() + " closing brackets");
         if (!errors.isEmpty()) {
             String errorTrace = "";
             for (Error e: errors) {
@@ -95,7 +62,7 @@ public class Parser {
             return;
         }
         for (int i = 0; i < 2; i++) {
-            scopeSys.leaveScope();
+            tabLevel--;
             addToOutput("}", false);
         }
         try {
@@ -117,7 +84,8 @@ public class Parser {
      * @return the divided string as an array
      */
     public String[] split(String s) {
-        return s.split("\\s+");
+        String matchWhitespace = "\\s+";
+        return s.trim().split(matchWhitespace);
     }
 
     /**
@@ -143,7 +111,6 @@ public class Parser {
 
     public void var_def(String[] tokens) {
         //TODO ensure that the types are matched
-//        System.out.println(Arrays.toString(tokens));
         String name = tokens[1], eq = tokens[2], value = tokens[3], type = tokens[5];
         boolean success = scopeSys.addVariable(name, type);
         if (success) {
@@ -153,6 +120,50 @@ public class Parser {
         else {
             addError(ErrorType.OverloadedDefinitionError, "Cannot redeclare variable '" + name + " -> " + type + "'");
         }
+    }
+    public void var_assign(String[] tokens) {
+        //TODO check that the new value conforms to the type
+    }
+    public void if_stmt(String[] tokens) {
+        cond_block("if", tokens);
+    }
+    public void while_loop(String[] tokens) {
+        cond_block("while", tokens);
+    }
+    private void cond_block(String typeOfBlock, String[] tokens) {
+        StringBuilder temp = new StringBuilder(typeOfBlock + " (");
+        for (int i = 1; i < tokens.length - 1; i++) {
+            String token = tokens[i];
+            temp.append(token).append(" "); // TODO strip the first and last elements of the list, evaluate the rest with condition()
+            if (!token.equals("true") && !token.equals("false") && !token.contains("&&") && !token.contains("||")) { // TODO check if this collides with strings
+                if (!scopeSys.hasVariable(token)) addError(ErrorType.UndeclaredIdentifierError, "Symbol '" + token + "' not defined");
+            }
+        }
+        addToOutput(temp.deleteCharAt(temp.length() - 1) + ")", false);
+    }
+    private void condition(String[] tokens) {
+        // TODO determine the makeup by the number of things
+    }
+    public void for_loop(String[] tokens) {
+        String iterationVar = tokens[1], firstBound = tokens[3], secondBound = tokens[5];
+        // TODO add checking
+        double firstNum = Double.parseDouble(firstBound), secondNum = Double.parseDouble(secondBound);
+        String operator = "++";
+        if (firstNum > secondNum) operator = "--";
+        String temp = "for (int " + iterationVar + " = " + firstBound + "; " + iterationVar + " <= " + secondBound + "; " + iterationVar + operator + ")";
+        addToOutput(temp, false);
+    }
+    // TODO add functions
+    // Consider holding info about existing types in the scopeSys
+    public void lb() {
+        addToOutput("{", false);
+        scopeSys.enterScope();
+        tabLevel++;
+    }
+    public void rb() {
+        if (!scopeSys.leaveScope()) addError(ErrorType.BracketMismatchError, "Excess closing brackets");
+        else tabLevel--;
+        addToOutput("}", false);
     }
     public void newline() {
         line++;
@@ -185,13 +196,17 @@ public class Parser {
 
     private void addToOutput(String s, boolean semicolon) {
         StringBuilder temp = new StringBuilder();
-        for (int i = 0; i < scopeSys.getScopeLevel(); i++) {
+        for (int i = 0; i < tabLevel; i++) {
             temp.append("\t");
         }
         temp.append(s);
         if (semicolon) temp.append(";");
         output.add(temp.toString());
     }
+
+//    private void clearSentence() {
+//        sentence.clear();
+//    }
 
     private boolean areMatched(TokenType tokenType, String type) {
         switch (type) {
