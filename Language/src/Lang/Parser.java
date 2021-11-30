@@ -19,6 +19,7 @@ public class Parser {
 
 
     private final List<String> output = new ArrayList<>();
+    private final List<String> funcQueue = new ArrayList<>();
     private final ScopeSystem scopeSys = new ScopeSystem();
     private final List<Error> errors = new ArrayList<>();
     private int line = 1;
@@ -45,7 +46,7 @@ public class Parser {
         tabLevel++;
     }
 
-    // TODO name the file and class according to th input file name
+    // TODO name the file and class according to the input file name
     /**
      * Writes the output to an external file
      */
@@ -59,10 +60,11 @@ public class Parser {
             System.out.print(errorTrace);
             return;
         }
-        for (int i = 0; i < 2; i++) {
-            tabLevel--;
-            addToOutput("}", false);
-        }
+        tabLevel--;
+        addToOutput("}", false);
+        addFunctionsToOutput();
+        tabLevel--;
+        addToOutput("}", false);
         try {
             FileWriter file = new FileWriter("src/Lang/outputTest.txt");
             for (String s: output) {
@@ -166,13 +168,20 @@ public class Parser {
         String temp = "for (int " + iterationVar + " = " + firstBound + "; " + iterationVar + " <= " + secondBound + "; " + iterationVar + operator + ")";
         addToOutput(temp, false);
     }
-    // TODO prevent function definitions within function body
+    // TODO check that functions are not defined twice
     // TODO add function text to their own special queue and then place them as methods of the Main class
-    // TODO ensure functions are only defined on the top level scope (all functions are global)
     public void func_def(String[] tokens) {
-        StringBuilder temp = new StringBuilder();
-        for (String s: tokens) temp.append(s + " ");
-        addToOutput(temp.deleteCharAt(temp.length() - 1).toString(), false);
+        if (scopeSys.atTopLevel()) { // ensures that all functions are declared globally
+            String name = tokens[1];
+
+            StringBuilder temp = new StringBuilder();
+            for (String s: tokens) temp.append(s + " ");
+            funcQueue.add("\t" + temp.deleteCharAt(temp.length() - 1).toString());
+        }
+        else addError(ErrorType.SyntaxError, "Functions can only be declared at the top level");
+    }
+    private void args(String[] tokens) {
+
     }
     public void return_stmt(String[] tokens) {
         if (scopeSys.contains(ScopeType.func)) { // used within a function
@@ -188,14 +197,14 @@ public class Parser {
         else addError(ErrorType.SyntaxError, "Cannot use " + tokens[0] + " statements outside of a loop");
     }
     public void lb(ScopeType type) {
-        addToOutput("{", false);
         scopeSys.enterScope(type);
+        addToOutput("{", false);
         tabLevel++;
     }
     public void rb() {
-        if (!scopeSys.leaveScope()) addError(ErrorType.BracketMismatchError, "Excess closing brackets");
-        else tabLevel--;
+        tabLevel--;
         addToOutput("}", false);
+        if (!scopeSys.leaveScope()) addError(ErrorType.BracketMismatchError, "Excess closing brackets");
     }
     public void newline() {
         line++;
@@ -210,13 +219,6 @@ public class Parser {
 
 
 
-
-//    /**
-//     * Empties the current sentence
-//     */
-//    private void clearSentence() {
-//        sentence.clear();
-//    }
 
     /**
      * Checks if the current line contains an error
@@ -233,12 +235,16 @@ public class Parser {
         }
         temp.append(s);
         if (semicolon) temp.append(";");
-        output.add(temp.toString());
+        if (scopeSys.contains(ScopeType.func)) funcQueue.add(temp.toString());
+        else output.add(temp.toString());
+
     }
 
-//    private void clearSentence() {
-//        sentence.clear();
-//    }
+    private void addFunctionsToOutput() {
+        for (String s: funcQueue) {
+            output.add(s);
+        }
+    }
 
     private boolean areMatched(TokenType tokenType, String type) {
         switch (type) {

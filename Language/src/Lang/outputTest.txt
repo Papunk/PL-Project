@@ -5,15 +5,39 @@ public class Main {
 		Double my_num_var = 29834;
 		String hello = "Hello";
 		Boolean someBoolean = true;
-		func getATenSometimes(num someNUm) -> num
-		{
-			return someNUM;
-		}
 		Boolean someotherBool = true;
 		Double aNumber = 34.2;
 		while (someBoolean && someotherBool)
 		{
 			Boolean aBoolean = true;
+			if (true)
+			{
+				Double abh = 29834;
+			}
+			for (int i = 10; i <= 10; i++)
+			{
+				if (false)
+				{
+					String mySTR = "HelloThere";
+					break;
+				}
+			}
 		}
 	}
+	func getATenSometimes: num someNUM, bool aBool -> num
+		{
+			if (someBoolean)
+			{
+				return 10;
+			}
+			return someNUM;
+		}
+	func getATenSometimes: num someNUM, bool aBool -> num
+		{
+			if (someBoolean)
+			{
+				return 10;
+			}
+			return someNUM;
+		}
 }

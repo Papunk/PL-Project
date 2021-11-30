@@ -103,6 +103,10 @@ public class ScopeSystem {
         return false;
     }
 
+    public boolean atTopLevel() {
+        return getCurrentScopeLevel() == 0;
+    }
+
 
 
     /**

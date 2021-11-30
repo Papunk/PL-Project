@@ -30,7 +30,7 @@ bool = true|false
 literal = {num}|{string}|{bool}
 // stuff
 all = .*?
-id = [A-Za-z0-9_]+
+id = [A-Za-z]+[A-Za-z0-9_]*
 operator = \+ | \- | \* | \/
 rel_op = <|>|==|<=|>=|\!=
 bool_op = {rel_op}|&&|\|\||\! // functions that return a boolean
@@ -63,7 +63,7 @@ if_stmt = {wse}if{ws}{condition}{ws}then
 for_loop = {wse}for{ws}{id}{ws}from{ws}{int}{ws}to{ws}{int}{ws}do
 while_loop = {wse}while{ws}{condition}{ws}do
 // functions
-func_def = {wse}func{ws}{id}{wse}{lp}{wse}{args}{wse}{rp}{ws}{arrow}{ws}{func_return}
+func_def = {wse}func{ws}{id}:{ws}{args}{ws}{arrow}{ws}{func_return}
 func_call = {wse}{id}\(\)
 arg = {type}{ws}{value}
 args = ({arg},{wse})*{arg}|{wse}
