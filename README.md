@@ -9,3 +9,4 @@ Our programming language sets out to provide tools for data analysis and visuali
 - **Global Functions:** Functions are declared at the top level and are available everywhere
 - **Easy I/O:** It only takes one line to read a Graph, Tree, or Set from a supported file format
 - **Static Typing:** Variable types are clearly defined
+- **Helpful Errors:** The parser marks the line numbers with errors and gives helpful messages
