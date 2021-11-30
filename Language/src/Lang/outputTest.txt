@@ -24,7 +24,7 @@ public class Main {
 			}
 		}
 	}
-	func getATenSometimes: num someNUM, bool aBool -> num
+	public Double getATenSometimes(Double someNUM,Boolean aBool)
 		{
 			if (someBoolean)
 			{
@@ -32,12 +32,10 @@ public class Main {
 			}
 			return someNUM;
 		}
-	func secondFunction: num someNUM -> num
+	public void secondFunction(Double someNUM)
 		{
 			if (someBoolean)
 			{
-				return 10;
 			}
-			return someNUM;
 		}
 }

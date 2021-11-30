@@ -10,10 +10,11 @@ public class Function {
     private String returnType;
     public boolean isValid = true;
 
-    public Function(String name, Variable[] variables) {
+    public Function(String name, Variable[] variables, String returnType) {
         this.name = name;
         args = new HashSet<>();
         for (Variable v: variables) if (!args.add(v)) isValid = false;
+        this.returnType = returnType;
     }
 
     @Override

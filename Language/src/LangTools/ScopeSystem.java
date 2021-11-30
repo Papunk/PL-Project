@@ -54,8 +54,8 @@ public class ScopeSystem {
      * @param args of the function
      * @return true if the operation was successful and false otherwise
      */
-    public boolean addFunction(String name, Variable[] args) {
-        Function function = new Function(name, args);
+    public boolean addFunction(String name, Variable[] args, String returnType) {
+        Function function = new Function(name, args, returnType);
         if (isValid(function)) return scopeStack.peek().addFunction(function);
         return false;
     }
@@ -141,7 +141,7 @@ public class ScopeSystem {
 
         public boolean contains(Function function) {
             for (Function f: functions) {
-                if (f.hasSameNameAs(function)) return true;
+                if (f.equals(function)) return true;
             }
             return false;
         }

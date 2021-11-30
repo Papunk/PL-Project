@@ -168,31 +168,39 @@ public class Parser {
         String temp = "for (int " + iterationVar + " = " + firstBound + "; " + iterationVar + " <= " + secondBound + "; " + iterationVar + operator + ")";
         addToOutput(temp, false);
     }
-    // TODO check that functions are not defined twice
-    // TODO add function text to their own special queue and then place them as methods of the Main class
+    // TODO make the args be functions of the next scope
     public void func_def(String[] tokens) {
         if (scopeSys.atTopLevel()) { // ensures that all functions are declared globally
             String name = new StringBuilder(tokens[1]).deleteCharAt(tokens[1].length() - 1).toString(), type = tokens[tokens.length - 1];
             Variable[] args = args(Arrays.copyOfRange(tokens, 2,tokens.length - 2));
-
-
-            StringBuilder temp = new StringBuilder();
-            for (String s: tokens) temp.append(s + " ");
-            funcQueue.add("\t" + temp.deleteCharAt(temp.length() - 1).toString());
+            if (!scopeSys.addFunction(name, args, type)) {
+                addError(ErrorType.InvalidRedeclarationError, "Function '" + name + "' can only be declared once");
+                return;
+            }
+            StringBuilder argString = new StringBuilder();
+            for (Variable v: args) {
+                argString.append(toJavaWS(v.type, TokenType.type) + v.name + ",");
+            }
+            argString.deleteCharAt(argString.length() - 1);
+            String temp = "public " + toJavaWS(type, TokenType.type) + name + "(" + argString.toString() + ")";
+            funcQueue.add("\t" + temp);
         }
         else addError(ErrorType.SyntaxError, "Functions can only be declared at the top level");
     }
-    // TODO implement this
     private Variable[] args(String[] tokens) {
         if (tokens.length % 2 != 0) addError(ErrorType.IncorrectArgumentsError, "Arguments are wrong");
-        Variable[] args = new Variable[tokens.length / 2];
+        ArrayList<Variable> args = new ArrayList<>();
         for (int i = 0; i < tokens.length; i += 2) {
-            //tokens[i] is the type
-            //tokens[i+1] with the comma removed is the variable named
-            // make variable
+            String type = tokens[i], name = tokens[i + 1];
+            if (name.endsWith(",")) name = name.substring(0, name.length() - 1);
+            args.add(new Variable(name, type));
         }
-        return args;
+        Variable[] argArray = new Variable[args.size()];
+        for (int i = 0; i < argArray.length; i++) argArray[i] = args.get(i);
+        return argArray;
     }
+    // TODO ensure that return types match up
+    // TODO prevent returns from void functions
     public void return_stmt(String[] tokens) {
         if (scopeSys.contains(ScopeType.func)) { // used within a function
             StringBuilder temp = new StringBuilder();
@@ -293,6 +301,8 @@ public class Parser {
                     case "string":
                         result = "String";
                         break;
+                    default:
+                        result = text;
                 }
                 break;
             case eq:

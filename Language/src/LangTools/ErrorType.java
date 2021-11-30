@@ -7,5 +7,6 @@ public enum ErrorType {
     ParenthesisMismatchError,
     BracketMismatchError,
     UndeclaredIdentifierError,
-    IncorrectArgumentsError
+    IncorrectArgumentsError,
+    InvalidRedeclarationError,
 }
