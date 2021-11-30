@@ -52,7 +52,7 @@ public class Parser {
     public void end() {
         if (!scopeSys.isEmpty()) addError(ErrorType.BracketMismatchError, "Must close all brackets; missing " + scopeSys.getCurrentScopeLevel() + " closing brackets");
         if (!errors.isEmpty()) {
-            String errorTrace = "";
+            String errorTrace = "\n";
             for (Error e: errors) {
                 errorTrace += e.toString() + "\n";
             }
@@ -119,8 +119,8 @@ public class Parser {
             addError(ErrorType.OverloadedDefinitionError, "Cannot redeclare variable '" + name + " -> " + type + "'");
         }
     }
+    // TODO implement this
     public void var_assign(String[] tokens) {
-        //TODO check that the new value conforms to the type
     }
     // TODO check if variables in ifs and fors have been previously defined
     public void if_stmt(String[] tokens) {
@@ -140,6 +140,7 @@ public class Parser {
         }
         addToOutput(temp.deleteCharAt(temp.length() - 1) + ")", false);
     }
+    // TODO finish condition()
     private void condition(String[] tokens) {
         // match parenthesis
         List<String> tokenList = Arrays.asList(tokens);
@@ -159,7 +160,6 @@ public class Parser {
     }
     public void for_loop(String[] tokens) {
         String iterationVar = tokens[1], firstBound = tokens[3], secondBound = tokens[5];
-        // TODO add checking
         double firstNum = Double.parseDouble(firstBound), secondNum = Double.parseDouble(secondBound);
         String operator = "++";
         if (firstNum > secondNum) operator = "--";
@@ -168,6 +168,7 @@ public class Parser {
     }
     // TODO prevent function definitions within function body
     // TODO add function text to their own special queue and then place them as methods of the Main class
+    // TODO ensure functions are only defined on the top level scope (all functions are global)
     public void func_def(String[] tokens) {
         StringBuilder temp = new StringBuilder();
         for (String s: tokens) temp.append(s + " ");
@@ -179,13 +180,12 @@ public class Parser {
             for (String s: tokens) temp.append(s + " ");
             addToOutput(temp.deleteCharAt(temp.length() - 1).toString(), true);
         }
-        else { // used outside of a function
-            addError(ErrorType.SyntaxError, "Cannot use return statement outside of function body");
-        }
+        // used outside of a function
+        else addError(ErrorType.SyntaxError, "Cannot use return statement outside of function body");
     }
-    // TODO check that the are done within a loop
     public void scope_ctrl(String[] tokens) {
-        addToOutput(tokens[0], true);
+        if (scopeSys.contains(ScopeType.loop)) addToOutput(tokens[0], true);
+        else addError(ErrorType.SyntaxError, "Cannot use " + tokens[0] + " statements outside of a loop");
     }
     public void lb(ScopeType type) {
         addToOutput("{", false);

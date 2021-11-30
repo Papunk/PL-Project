@@ -7,10 +7,6 @@ public class Main {
 		Boolean someBoolean = true;
 		func getATenSometimes(num someNUm) -> num
 		{
-			if (someBoolean)
-			{
-				return 10;
-			}
 			return someNUM;
 		}
 		Boolean someotherBool = true;
@@ -18,18 +14,6 @@ public class Main {
 		while (someBoolean && someotherBool)
 		{
 			Boolean aBoolean = true;
-			if (true)
-			{
-				Double abh = 29834;
-			}
-			for (int i = 10; i <= 10; i++)
-			{
-				if (false)
-				{
-					String mySTR = "HelloThere";
-					break;
-				}
-			}
 		}
 	}
 }
