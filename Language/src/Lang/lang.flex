@@ -85,9 +85,9 @@ scope = {lb}{newline}{stmt}{newline}{rb}
         parser.var_def(parser.split(yytext()));
     }
 
-    {var_assign} {
+    // {var_assign} {
 
-    }
+    // }
 
     {if_stmt} {
         parser.if_stmt(parser.split(yytext()));
@@ -141,6 +141,8 @@ scope = {lb}{newline}{stmt}{newline}{rb}
         parser.lb(ScopeType.loop);
         yybegin(YYINITIAL);
     }
+
+    {ignore} {}
 }
 
 <FUNC> {
@@ -148,4 +150,6 @@ scope = {lb}{newline}{stmt}{newline}{rb}
         parser.lb(ScopeType.func);
         yybegin(YYINITIAL);
     }
+
+    {ignore} {}
 }

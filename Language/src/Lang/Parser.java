@@ -172,7 +172,8 @@ public class Parser {
     // TODO add function text to their own special queue and then place them as methods of the Main class
     public void func_def(String[] tokens) {
         if (scopeSys.atTopLevel()) { // ensures that all functions are declared globally
-            String name = tokens[1];
+            String name = new StringBuilder(tokens[1]).deleteCharAt(tokens[1].length() - 1).toString(), type = tokens[tokens.length - 1];
+
 
             StringBuilder temp = new StringBuilder();
             for (String s: tokens) temp.append(s + " ");
