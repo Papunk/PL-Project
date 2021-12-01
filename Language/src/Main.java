@@ -1,25 +1,16 @@
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.Scanner;
 import Lang.Lexer;
-import java.io.IOException;
 
 public class Main {
     // launch this from language command
     public static void main(String[] args) {
-
-            Scanner scanner = new Scanner(System.in);
-            System.out.println("Enter file path: ");
-            String filePath = scanner.next();
-
-            System.out.println(" The file chosen was " + filePath + ".");
-
-            File file = new File("/PL-Project/Language/src/" + filePath);
-            Lexer.main(args);
-
-        // takes the file
-        // runs lexer
-            // lexer generates preliminary file
-        //
+        try {
+            if (args.length == 0) Lexer.main(new String[]{"src/Lang/testInput.paje"});
+            else Lexer.main(args);
+        }
+        catch (Exception e) {
+            System.out.println("Enter the source file path as an argument to this program or leave empty to run the test file.");
+        }
     }
 }

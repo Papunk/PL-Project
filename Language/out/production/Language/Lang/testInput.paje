@@ -1,0 +1,39 @@
+// TEST FILE
+
+
+// Area of a circle
+
+
+let area = 0 -> num
+
+func getArea: num radius -> num {
+    if radius<=0 then {
+        return 0
+    }
+    let pi = 3.14 -> num
+    return radius*radius*pi
+}
+
+area = getArea(23)
+
+print area
+
+
+// Factorial
+
+
+func factorial: num n -> num {
+    if n<1 then {
+        return 1
+    }
+    if n==2 then {
+        return 2
+    }
+    let prev = n-1 -> num
+    prev = factorial(prev)
+    return n*prev
+}
+
+for i from 0 to 10 do {
+    print factorial(i)
+}

@@ -64,15 +64,22 @@ public class Parser {
         addFunctionsToOutput();
         tabLevel--;
         addToOutput("}", false);
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter output directory: ");
+        String filePath = scanner.next();
+        if (!filePath.endsWith("/")) filePath += "/";
+
         try {
-            FileWriter file = new FileWriter("src/Lang/PAJeClass.txt");
+            FileWriter file = new FileWriter(filePath + "PAJeClass.java");
             for (String s: output) {
                 file.write(s + "\n");
             }
             file.close();
+            System.out.println("Successfully wrote to " + filePath + "PAJeClass.java");
         }
         catch(Exception e) {
-            // do something
+            System.out.println("Invalid location");
         }
     }
 
