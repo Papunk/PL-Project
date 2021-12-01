@@ -1,0 +1,41 @@
+<program> := <stmts>
+
+<stmts> := <stmt> \n <stmts> | e
+
+<stmt> := <var_dec> | <var_assign> | <command> | <if_stmt> | <
+
+<var_def> := let <var_assign> <type_dec>
+
+<var_assign> := <id> = <value>
+
+<type_dec> := -> <type>
+
+<type_def> := type <id> { <var_def> }
+
+<func_def> := func <id> ( <args> )
+
+<func_call> := <id> ( <args> )
+
+<args> := [<id> : exp]*
+
+<command> := <command_name> <exp> 
+
+<command_name> := read | make | print | display
+
+
+<id> := [A-Za-z]+[A-Za-z | 0-9 | _ | -]*
+
+<exp> := <value> (<exp> | e)
+
+<value> := <id> | <literal>
+
+
+<if_stmt> := if <exp> then (<stmt> | { <stmts> })
+
+<for_loop> := for <var_name> from <int> to <int> do (<stmt> | { <stmts> })
+
+<while_loop> := while <exp> do (<stmt> | { <stmts> })
+
+
+<str> := " <Any Character> "
+<num> := [0-9]+.[0-9]+ | [0-9]*
