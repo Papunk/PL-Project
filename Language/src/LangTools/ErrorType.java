@@ -2,8 +2,11 @@ package LangTools;
 
 public enum ErrorType {
     SyntaxError,
-    InvalidSentenceError,
-    IncompleteExpressionError,
     TypeMismatchError,
-    ParethesisMismatchError
+    OverloadedDefinitionError,
+    ParenthesisMismatchError,
+    BracketMismatchError,
+    UndeclaredIdentifierError,
+    IncorrectArgumentsError,
+    InvalidRedeclarationError,
 }

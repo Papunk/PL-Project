@@ -1,17 +1,30 @@
 package LangTools;
 
+
+import java.util.HashSet;
+import java.util.Set;
+
 public class Function {
     private String name;
-    private Variable[] args;
+    public HashSet<Variable> args;
+    private String returnType;
+    public boolean isValid = true;
 
-    public Function(String name, Variable[] args) {
+    public Function(String name, Variable[] variables, String returnType) {
         this.name = name;
-        this.args = args;
+        args = new HashSet<>();
+        for (Variable v: variables) if (!args.add(v)) isValid = false;
+        this.returnType = returnType;
     }
 
     @Override
     public boolean equals(Object o) {
+        if (getClass() != o.getClass()) return false;
         Function other = (Function) o;
-        return name.equals(other.name) && args.equals(other.args);
+        return name.equals(other.name) && args.equals(other.args) && args.containsAll(other.args);
+    }
+
+    public boolean hasSameNameAs(Function f) {
+        return name.equals(f.name);
     }
 }

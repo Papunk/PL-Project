@@ -1,3 +1,33 @@
-let my_var = 29834 -> num
-let hello = "Hello" -> bool
-let hello = true -> bool
+let my_num_var = 29834 -> num
+let hello = "Hello" -> string
+let someBoolean = true -> bool
+
+func getATenSometimes: num someNUM, bool aBool -> num {
+    if someBoolean then {
+        return 10
+    }
+    return someNUM
+}
+
+func secondFunction: num someNUM -> void {
+    if someBoolean then {
+    }
+}
+
+
+let someotherBool = true -> bool
+let aNumber = 34.2 -> num
+
+while someBoolean && someotherBool do {
+    let aBoolean = true  -> bool
+    if true then {
+        let abh = 29834 -> num
+    }
+
+    for i from 10 to 10 do {
+        if false then {
+            let mySTR = "HelloThere" -> string
+            break
+        }
+    }
+}

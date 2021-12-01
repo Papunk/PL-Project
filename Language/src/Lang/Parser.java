@@ -3,89 +3,68 @@ package Lang;
 import LangTools.*;
 
 import java.io.*;
-import java.sql.SQLOutput;
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class Parser {
 
+
+
+
+
+    // Variables
+
+
+
+
+
     private final List<String> output = new ArrayList<>();
-    private final ScopeSystem scopes = new ScopeSystem();
+    private final List<String> funcQueue = new ArrayList<>();
+    private final ScopeSystem scopeSys = new ScopeSystem();
     private final List<Error> errors = new ArrayList<>();
-    private final Stack<State> states = new Stack<>();
-    private final List<Token> sentence = new ArrayList<>();
-    private Token token = null;
     private int line = 1;
+    private int tabLevel;
+
+
+
+
+
+    // Public API
+
+
+
 
 
     public Parser() {
+        tabLevel = 0;
         addToOutput("import java.io.*", true);
         addToOutput("import java.util.*", true);
         // add our custom packages
         addToOutput("public class Main {", false);
-        scopes.enterScope();
+        tabLevel++;
         addToOutput("public static void main(String[] args) {", false);
-        scopes.enterScope();
-        states.push(State.program);
+        tabLevel++;
     }
 
-    /**
-     * Receives matched input as token from the lexer from the lexer
-     * @param text input from the lexer
-     * @param state the state of the parser
-     */
-    public void receive(String text, TokenType type, State state) {
-        setState(state);
-        receive(text, type);
-    }
-
-    /**
-     * Receives matched input without changing state
-     * @param text input from the lexer
-     */
-    public void receive(String text, TokenType type) {
-        token = new Token(text, type);
-//        System.out.println(token);
-//        System.out.println(currentSentence);
-        switch (states.peek()) {
-            case program: break;
-            case var_def: var_def(); break;
-            case if_stmt: break;
-            default: break;
-        }
-    }
-
-    /**
-     * Sets the current parser state
-     * @param state the state of the parser
-     */
-    public void setState(State state) {
-        states.push(state);
-    }
-
-    /**
-     * Drops the current state
-     */
-    public void dropState() {
-        // TODO dont destroy the base state
-        states.pop();
-    }
-
+    // TODO name the file and class according to the input file name
     /**
      * Writes the output to an external file
      */
     public void end() {
+        if (!scopeSys.isEmpty()) addError(ErrorType.BracketMismatchError, "Must close all brackets; missing " + scopeSys.getCurrentScopeLevel() + " closing brackets");
         if (!errors.isEmpty()) {
-            String errorTrace = "";
+            String errorTrace = "\n";
             for (Error e: errors) {
                 errorTrace += e.toString() + "\n";
             }
             System.out.print(errorTrace);
             return;
         }
-        for (int i = 0; i < 2; i++) {
-            scopes.leaveScope();
-            addToOutput("}", false);
-        }
+        tabLevel--;
+        addToOutput("}", false);
+        addFunctionsToOutput();
+        tabLevel--;
+        addToOutput("}", false);
         try {
             FileWriter file = new FileWriter("src/Lang/outputTest.txt");
             for (String s: output) {
@@ -99,88 +78,165 @@ public class Parser {
     }
 
 
+    /**
+     * Divides a string by whitespace
+     * @param s the string to divide
+     * @return the divided string as an array
+     */
+    public String[] split(String s) {
+        String matchWhitespace = "\\s+";
+        return s.trim().split(matchWhitespace);
+    }
+
+    /**
+     * Adds an error to the given line
+     * @param t type of error
+     * @param msg the message to be displayed
+     */
+    public void addError(ErrorType t, String msg) {
+        Error err = new Error(line, t, msg);
+        for (Error e: errors) if (e.equals(err)) return;
+        errors.add(err);
+    }
+
+
+
+
+
     // Parser Functions
 
 
-    private void program() {}
-    private void stmt() {}
-    private void var_def() {
-        switch (token.type) {
-            case id: case literal: case num: case string: case bool: case type: case eq: case arrow:
-                sentence.add(token);
-                break;
-            case newline:
-                System.out.print("CURRENT SENTENCE: ");
-                System.out.println(sentence);
-                if (sentence.size() != 5) addError(ErrorType.InvalidSentenceError);
-                else {
-                    String result = "";
-                    // variable type
-                    if (sentence.get(4).type == TokenType.type) result += sentence.get(4).toJava(true);
-                    else addError(ErrorType.InvalidSentenceError);
-                    // variable name
-                    if (sentence.get(0).type == TokenType.id) result += sentence.get(0).toJava(true);
-                    else addError(ErrorType.InvalidSentenceError);
-                    // equal sign
-                    if (sentence.get(1).type == TokenType.eq) result += sentence.get(1).toJava(true);
-                    else addError(ErrorType.IncompleteExpressionError);
-                    // literal
-                    if (
-                            sentence.get(2).type == TokenType.literal ||
-                            sentence.get(2).type == TokenType.num ||
-                            sentence.get(2).type == TokenType.string ||
-                            sentence.get(2).type == TokenType.bool
-                    ) result += sentence.get(2).toJava(false);
-                    else addError(ErrorType.InvalidSentenceError);
-                    // checking for the arrow
-                    if (sentence.get(3).type != TokenType.arrow) addError(ErrorType.IncompleteExpressionError);
-                    // type matching
-                    if (!areMatched(sentence.get(2).type, sentence.get(4).text)) addError(ErrorType.TypeMismatchError);
-                    // add the variable to the scope
-                    // add the lines to the output
-                    if (!lineHasErrors()) {
-                        scopes.addVariable(sentence.get(0).text, Type.getType(sentence.get(4).text));
-                        addToOutput(result, true);
-                    }
-                }
-                dropState();
-                clearSentence();
-                newline();
-                break;
-            default:
-                addError(ErrorType.SyntaxError);
+
+
+
+    public void var_def(String[] tokens) {
+        //TODO ensure that the types are matched
+        String name = tokens[1], eq = tokens[2], value = tokens[3], type = tokens[5];
+        boolean success = scopeSys.addVariable(name, type);
+        if (success) {
+            String temp = toJavaWS(type, TokenType.type) + toJavaWS(name, TokenType.id) + toJavaWS(eq, TokenType.eq) + toJava(value, TokenType.literal);
+            addToOutput(temp, true);
+        }
+        else {
+            addError(ErrorType.OverloadedDefinitionError, "Cannot redeclare variable '" + name + " -> " + type + "'");
         }
     }
-    private void var_assign() {}
-    private void func_dec() {}
-    private void command() {}
-    private void id() {}
-    private void if_stmt() {}
-    private void for_loop() {}
-    private void while_loop() {}
-    private void newline() {
+    // TODO implement this
+    public void var_assign(String[] tokens) {
+    }
+    // TODO check if variables in ifs and fors have been previously defined
+    public void if_stmt(String[] tokens) {
+        cond_block("if", tokens);
+    }
+    public void while_loop(String[] tokens) {
+        cond_block("while", tokens);
+    }
+    private void cond_block(String typeOfBlock, String[] tokens) {
+        StringBuilder temp = new StringBuilder(typeOfBlock + " (");
+        for (int i = 1; i < tokens.length - 1; i++) {
+            String token = tokens[i];
+            temp.append(token).append(" "); // TODO strip the first and last elements of the list, evaluate the rest with condition()
+            if (!token.equals("true") && !token.equals("false") && !token.contains("&&") && !token.contains("||")) { // TODO check if this collides with strings
+                if (!scopeSys.hasVariable(token)) addError(ErrorType.UndeclaredIdentifierError, "Symbol '" + token + "' not defined");
+            }
+        }
+        addToOutput(temp.deleteCharAt(temp.length() - 1) + ")", false);
+    }
+    // TODO finish condition()
+    private void condition(String[] tokens) {
+        // match parenthesis
+        List<String> tokenList = Arrays.asList(tokens);
+        ArrayList<Integer> indicesWithOperators = new ArrayList<>();
+        for (int i = 0; i < tokens.length; i++) {
+            String token = tokens[i];
+            if (token.equals("||") || token.equals("&&")) {
+                indicesWithOperators.add(i);
+            }
+        }
+        // split by the indices obtained and sent the function to bool_exp() for processing
+        String[] s = (String[]) tokenList.toArray();
+
+    }
+    private void bool_exp(String[] tokens) {
+        // process boolean expressions based on their legality
+    }
+    public void for_loop(String[] tokens) {
+        String iterationVar = tokens[1], firstBound = tokens[3], secondBound = tokens[5];
+        double firstNum = Double.parseDouble(firstBound), secondNum = Double.parseDouble(secondBound);
+        String operator = "++";
+        if (firstNum > secondNum) operator = "--";
+        String temp = "for (int " + iterationVar + " = " + firstBound + "; " + iterationVar + " <= " + secondBound + "; " + iterationVar + operator + ")";
+        addToOutput(temp, false);
+    }
+    // TODO make the args be functions of the next scope
+    public void func_def(String[] tokens) {
+        if (scopeSys.atTopLevel()) { // ensures that all functions are declared globally
+            String name = new StringBuilder(tokens[1]).deleteCharAt(tokens[1].length() - 1).toString(), type = tokens[tokens.length - 1];
+            Variable[] args = args(Arrays.copyOfRange(tokens, 2,tokens.length - 2));
+            if (!scopeSys.addFunction(name, args, type)) {
+                addError(ErrorType.InvalidRedeclarationError, "Function '" + name + "' can only be declared once");
+                return;
+            }
+            StringBuilder argString = new StringBuilder();
+            for (Variable v: args) {
+                argString.append(toJavaWS(v.type, TokenType.type) + v.name + ",");
+            }
+            argString.deleteCharAt(argString.length() - 1);
+            String temp = "public " + toJavaWS(type, TokenType.type) + name + "(" + argString.toString() + ")";
+            funcQueue.add("\t" + temp);
+        }
+        else addError(ErrorType.SyntaxError, "Functions can only be declared at the top level");
+    }
+    private Variable[] args(String[] tokens) {
+        if (tokens.length % 2 != 0) addError(ErrorType.IncorrectArgumentsError, "Arguments are wrong");
+        ArrayList<Variable> args = new ArrayList<>();
+        for (int i = 0; i < tokens.length; i += 2) {
+            String type = tokens[i], name = tokens[i + 1];
+            if (name.endsWith(",")) name = name.substring(0, name.length() - 1);
+            args.add(new Variable(name, type));
+        }
+        Variable[] argArray = new Variable[args.size()];
+        for (int i = 0; i < argArray.length; i++) argArray[i] = args.get(i);
+        return argArray;
+    }
+    // TODO ensure that return types match up
+    // TODO prevent returns from void functions
+    public void return_stmt(String[] tokens) {
+        if (scopeSys.contains(ScopeType.func)) { // used within a function
+            StringBuilder temp = new StringBuilder();
+            for (String s: tokens) temp.append(s + " ");
+            addToOutput(temp.deleteCharAt(temp.length() - 1).toString(), true);
+        }
+        // used outside of a function
+        else addError(ErrorType.SyntaxError, "Cannot use return statement outside of function body");
+    }
+    public void scope_ctrl(String[] tokens) {
+        if (scopeSys.contains(ScopeType.loop)) addToOutput(tokens[0], true);
+        else addError(ErrorType.SyntaxError, "Cannot use " + tokens[0] + " statements outside of a loop");
+    }
+    public void lb(ScopeType type) {
+        scopeSys.enterScope(type);
+        addToOutput("{", false);
+        tabLevel++;
+    }
+    public void rb() {
+        tabLevel--;
+        addToOutput("}", false);
+        if (!scopeSys.leaveScope()) addError(ErrorType.BracketMismatchError, "Excess closing brackets");
+    }
+    public void newline() {
         line++;
     }
 
 
-    // Function Toolkit
 
-    /**
-     * Empties the current sentence
-     */
-    private void clearSentence() {
-        sentence.clear();
-    }
 
-    private void addError(ErrorType t) {
-        addError(t, line);
-    }
 
-    private void addError(ErrorType t, int line) {
-        Error err = new Error(line, t);
-        for (Error e: errors) if (e.equals(err)) return;
-        errors.add(err);
-    }
+    // Internal Function Toolkit
+
+
+
+
 
     /**
      * Checks if the current line contains an error
@@ -191,13 +247,21 @@ public class Parser {
     }
 
     private void addToOutput(String s, boolean semicolon) {
-        String temp = "";
-        for (int i = 0; i < scopes.getScopeLevel(); i++) {
-            temp += "\t";
+        StringBuilder temp = new StringBuilder();
+        for (int i = 0; i < tabLevel; i++) {
+            temp.append("\t");
         }
-        temp += s;
-        if (semicolon) temp += ";";
-        output.add(temp);
+        temp.append(s);
+        if (semicolon) temp.append(";");
+        if (scopeSys.contains(ScopeType.func)) funcQueue.add(temp.toString());
+        else output.add(temp.toString());
+
+    }
+
+    private void addFunctionsToOutput() {
+        for (String s: funcQueue) {
+            output.add(s);
+        }
     }
 
     private boolean areMatched(TokenType tokenType, String type) {
@@ -209,16 +273,63 @@ public class Parser {
         return false;
     }
 
+    /**
+     * Turn string to java code without a space at the end
+     */
+    public String toJava(String text, TokenType type) {
+        return toJava(text, type, false);
+    }
+
+    /**
+     * Turn string to java code with a space at the end
+     */
+    public String toJavaWS(String text, TokenType type) {
+        return toJava(text, type, true);
+    }
+
+    public String toJava(String text, TokenType type, boolean space) {
+        String result = "<NIL>";
+        switch (type) {
+            case type:
+                switch (text) {
+                    case "bool":
+                        result = "Boolean";
+                        break;
+                    case "num":
+                        result = "Double";
+                        break;
+                    case "string":
+                        result = "String";
+                        break;
+                    default:
+                        result = text;
+                }
+                break;
+            case eq:
+                result = "=";
+                break;
+            case id: case literal:
+                result = text;
+                break;
+        }
+        if (space) result += " ";
+        return result ;
+    }
 
 
-    // TODO make this debug function
+
     private void printState() {
 
     }
 
 
 
+
+
     // Internal Classes
+
+
+
 
 
     private static class Token {
@@ -236,46 +347,52 @@ public class Parser {
             return "'" + text + "' <"+ type.name() + ">";
         }
 
-        public String toJava(boolean space) {
-            String result = "<NIL>";
-            switch (type) {
-                case type:
-                    switch (text) {
-                        case "bool":
-                            result = "Boolean";
-                            break;
-                        case "num":
-                            result = "Double";
-                            break;
-                        case "string":
-                            result = "String";
-                            break;
-                    }
-                    break;
-                case eq:
-                    result = "=";
-                    break;
-                case id: case literal: case num: case string: case bool:
-                    result = this.text;
-                    break;
-            }
-            if (space) result += " ";
-            return result ;
-        }
+//        public String toJava(boolean space) {
+//            String result = "<NIL>";
+//            switch (type) {
+//                case type:
+//                    switch (text) {
+//                        case "bool":
+//                            result = "Boolean";
+//                            break;
+//                        case "num":
+//                            result = "Double";
+//                            break;
+//                        case "string":
+//                            result = "String";
+//                            break;
+//                    }
+//                    break;
+//                case eq:
+//                    result = "=";
+//                    break;
+//                case id: case literal: case num: case string: case bool:
+//                    result = this.text;
+//                    break;
+//            }
+//            if (space) result += " ";
+//            return result ;
+//        }
     }
 
     private static class Error {
         public int line;
         public ErrorType type;
+        public String msg;
 
-        public Error(int line, ErrorType type) {
+        public Error(int line, ErrorType type, String msg) {
             this.line = line;
             this.type = type;
+            this.msg = msg;
         }
 
         @Override
         public String toString() {
-            return type.name() + " at line " + Integer.toString(line);
+            return  type.name() +
+                    " at line " +
+                    Integer.toString(line) +
+                    ": " +
+                    msg;
         }
 
         @Override
@@ -294,10 +411,3 @@ public class Parser {
     }
 
 }
-
-/**
- * Note: architecture for functions:
- * default case -> wrong type of token for this state (add error; skip to the next line)
- * in other cases, add the relevant bit to the top of the deque
- * whe we reach the terminator, pop stateStack and remove the sentence from the bottom of the deque
- */
