@@ -9,7 +9,7 @@ import LangTools.*;
 
 // See https://github.com/jflex-de/jflex/issues/222
 @SuppressWarnings("FallThrough")
-class Lexer {
+public class Lexer {
 
   /** This character denotes the end of file. */
   public static final int YYEOF = -1;
