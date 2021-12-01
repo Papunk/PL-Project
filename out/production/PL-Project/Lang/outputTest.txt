@@ -1,0 +1,41 @@
+import java.io.*;
+import java.util.*;
+public class Main {
+	public static void main(String[] args) {
+		Double my_num_var = 29834;
+		String hello = "Hello";
+		Boolean someBoolean = true;
+		Boolean someotherBool = true;
+		Double aNumber = 34.2;
+		while (someBoolean && someotherBool)
+		{
+			Boolean aBoolean = true;
+			if (true)
+			{
+				Double abh = 29834;
+			}
+			for (int i = 10; i <= 10; i++)
+			{
+				if (false)
+				{
+					String mySTR = "HelloThere";
+					break;
+				}
+			}
+		}
+	}
+	public Double getATenSometimes(Double someNUM,Boolean aBool)
+		{
+			if (someBoolean)
+			{
+				return 10;
+			}
+			return someNUM;
+		}
+	public void secondFunction(Double someNUM)
+		{
+			if (someBoolean)
+			{
+			}
+		}
+}
