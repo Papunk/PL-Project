@@ -57,4 +57,8 @@ public class LNSetStruct<E> implements LNSet {
         // TODO Auto-generated method stub
         return elements.size();
     }
+
+    public String toString() {
+        return elements.toString();
+    }
 }

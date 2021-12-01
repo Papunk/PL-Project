@@ -71,7 +71,13 @@ public class LNTreeStruct implements LNTree {
         return current;
     }
 
-
-
-
+    public String toString(Node root){
+        String result = "";
+        if (root == null)
+            return "";
+        result += toString(root.left);
+        result += toString(root.right);
+        result += Integer.toString(root.value);
+        return result;
+    }
 }
