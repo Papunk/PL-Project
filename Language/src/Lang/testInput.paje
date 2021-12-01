@@ -1,3 +1,15 @@
+let pi = 3.14 -> num
+let area = 0 -> num
+
+func getArea: num radius -> num {
+    return chonguiro
+}
+
+getArea(23)
+
+area = getArea(23)
+
+
 let my_num_var = 29834 -> num
 let hello = "Hello" -> string
 let someBoolean = true -> bool
@@ -11,9 +23,11 @@ func getATenSometimes: num someNUM, bool aBool -> num {
 
 func secondFunction: num someNUM -> void {
     if someBoolean then {
+        return
     }
 }
 
+getATenSometimes(21.1, true)
 
 let someotherBool = true -> bool
 let aNumber = 34.2 -> num

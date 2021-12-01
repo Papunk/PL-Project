@@ -1,8 +1,10 @@
-import java.io.*;
-import java.util.*;
-public class Main {
+import API.*;
+public class PAJeClass {
 	public static void main(String[] args) {
-		Double my_num_var = 29834;
+		Double pi = 3.14;
+		Double area = 0;
+		area = getArea(23);
+		Double my_num_var = 29834.0;
 		String hello = "Hello";
 		Boolean someBoolean = true;
 		Boolean someotherBool = true;
@@ -12,7 +14,7 @@ public class Main {
 			Boolean aBoolean = true;
 			if (true)
 			{
-				Double abh = 29834;
+				Double abh = 29834.0;
 			}
 			for (int i = 10; i <= 10; i++)
 			{
@@ -24,6 +26,10 @@ public class Main {
 			}
 		}
 	}
+	public Double getArea(Double radius)
+		{
+			return chonguiro;
+		}
 	public Double getATenSometimes(Double someNUM,Boolean aBool)
 		{
 			if (someBoolean)
@@ -36,6 +42,7 @@ public class Main {
 		{
 			if (someBoolean)
 			{
+				return;
 			}
 		}
 }

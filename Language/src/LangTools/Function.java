@@ -5,9 +5,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Function {
-    private String name;
+    public String name;
     public HashSet<Variable> args;
-    private String returnType;
+    public String returnType;
     public boolean isValid = true;
 
     public Function(String name, Variable[] variables, String returnType) {

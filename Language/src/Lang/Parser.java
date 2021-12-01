@@ -37,25 +37,25 @@ public class Parser {
 
     public Parser() {
         tabLevel = 0;
-        addToOutput("import java.io.*", true);
-        addToOutput("import java.util.*", true);
+//        addToOutput("import java.io.*", true);
+//        addToOutput("import java.util.*", true);
+        addToOutput("import API.*", true);
         // add our custom packages
-        addToOutput("public class Main {", false);
+        addToOutput("public class PAJeClass {", false);
         tabLevel++;
         addToOutput("public static void main(String[] args) {", false);
         tabLevel++;
     }
 
-    // TODO name the file and class according to the input file name
     /**
      * Writes the output to an external file
      */
     public void end() {
         if (!scopeSys.isEmpty()) addError(ErrorType.BracketMismatchError, "Must close all brackets; missing " + scopeSys.getCurrentScopeLevel() + " closing brackets");
         if (!errors.isEmpty()) {
-            String errorTrace = "\n";
+            StringBuilder errorTrace = new StringBuilder("\n");
             for (Error e: errors) {
-                errorTrace += e.toString() + "\n";
+                errorTrace.append(e.toString()).append("\n");
             }
             System.out.print(errorTrace);
             return;
@@ -66,7 +66,7 @@ public class Parser {
         tabLevel--;
         addToOutput("}", false);
         try {
-            FileWriter file = new FileWriter("src/Lang/outputTest.txt");
+            FileWriter file = new FileWriter("src/Lang/PAJeClass.txt");
             for (String s: output) {
                 file.write(s + "\n");
             }
@@ -110,38 +110,47 @@ public class Parser {
 
 
     public void var_def(String[] tokens) {
-        //TODO ensure that the types are matched
         String name = tokens[1], eq = tokens[2], value = tokens[3], type = tokens[5];
-        boolean success = scopeSys.addVariable(name, type);
-        if (success) {
+        if (scopeSys.addVariable(name, type)) {
+            if (value.matches("[1-9]+[0-9]*")) value += ".0";
+            if (!areMatched(value, type)) addError(ErrorType.TypeMismatchError, "Value '" + value + "' does not correspond to type '" + type + "'");
             String temp = toJavaWS(type, TokenType.type) + toJavaWS(name, TokenType.id) + toJavaWS(eq, TokenType.eq) + toJava(value, TokenType.literal);
             addToOutput(temp, true);
         }
-        else {
-            addError(ErrorType.OverloadedDefinitionError, "Cannot redeclare variable '" + name + " -> " + type + "'");
-        }
+        else addError(ErrorType.OverloadedDefinitionError, "Cannot redeclare variable '" + name + " -> " + type + "'");
     }
-    // TODO implement this
+
     public void var_assign(String[] tokens) {
+        String name = tokens[0], eq = tokens[1], value = tokens[2];
+        if (scopeSys.hasVariable(name)) {
+            Variable var = scopeSys.getVariableWithName(name);
+            if (var == null) addError(ErrorType.UndeclaredIdentifierError, "Variable '" + name + "' has not been declared");
+            else if (!areMatched(value, var.type) && !value.matches("[A-Za-z]+[A-Za-z0-9_]*\\(.*?\\)")) addError(ErrorType.TypeMismatchError, "Value '" + value + "' does not correspond to type '" + var.type + "'");
+            else addToOutput(name + " = " + value, true);
+        }
+        else addError(ErrorType.UndeclaredIdentifierError, "Variable '" + name + "' has not been declared");
     }
-    // TODO check if variables in ifs and fors have been previously defined
+
     public void if_stmt(String[] tokens) {
         cond_block("if", tokens);
     }
+
     public void while_loop(String[] tokens) {
         cond_block("while", tokens);
     }
+
     private void cond_block(String typeOfBlock, String[] tokens) {
         StringBuilder temp = new StringBuilder(typeOfBlock + " (");
         for (int i = 1; i < tokens.length - 1; i++) {
             String token = tokens[i];
-            temp.append(token).append(" "); // TODO strip the first and last elements of the list, evaluate the rest with condition()
+            temp.append(token).append(" ");
             if (!token.equals("true") && !token.equals("false") && !token.contains("&&") && !token.contains("||")) { // TODO check if this collides with strings
                 if (!scopeSys.hasVariable(token)) addError(ErrorType.UndeclaredIdentifierError, "Symbol '" + token + "' not defined");
             }
         }
         addToOutput(temp.deleteCharAt(temp.length() - 1) + ")", false);
     }
+
     // TODO finish condition()
     private void condition(String[] tokens) {
         // match parenthesis
@@ -157,9 +166,11 @@ public class Parser {
         String[] s = (String[]) tokenList.toArray();
 
     }
+
     private void bool_exp(String[] tokens) {
         // process boolean expressions based on their legality
     }
+
     public void for_loop(String[] tokens) {
         String iterationVar = tokens[1], firstBound = tokens[3], secondBound = tokens[5];
         double firstNum = Double.parseDouble(firstBound), secondNum = Double.parseDouble(secondBound);
@@ -168,7 +179,7 @@ public class Parser {
         String temp = "for (int " + iterationVar + " = " + firstBound + "; " + iterationVar + " <= " + secondBound + "; " + iterationVar + operator + ")";
         addToOutput(temp, false);
     }
-    // TODO make the args be functions of the next scope
+
     public void func_def(String[] tokens) {
         if (scopeSys.atTopLevel()) { // ensures that all functions are declared globally
             String name = new StringBuilder(tokens[1]).deleteCharAt(tokens[1].length() - 1).toString(), type = tokens[tokens.length - 1];
@@ -187,6 +198,7 @@ public class Parser {
         }
         else addError(ErrorType.SyntaxError, "Functions can only be declared at the top level");
     }
+
     private Variable[] args(String[] tokens) {
         if (tokens.length % 2 != 0) addError(ErrorType.IncorrectArgumentsError, "Arguments are wrong");
         ArrayList<Variable> args = new ArrayList<>();
@@ -199,10 +211,15 @@ public class Parser {
         for (int i = 0; i < argArray.length; i++) argArray[i] = args.get(i);
         return argArray;
     }
-    // TODO ensure that return types match up
-    // TODO prevent returns from void functions
+
+    public void func_call(String tokens) {
+
+    }
+
     public void return_stmt(String[] tokens) {
         if (scopeSys.contains(ScopeType.func)) { // used within a function
+            Function func = scopeSys.getCurrentFunction();
+            if (func.returnType.equals("void") && tokens.length > 1) addError(ErrorType.SyntaxError, "Void functions must not have return values");
             StringBuilder temp = new StringBuilder();
             for (String s: tokens) temp.append(s + " ");
             addToOutput(temp.deleteCharAt(temp.length() - 1).toString(), true);
@@ -210,20 +227,24 @@ public class Parser {
         // used outside of a function
         else addError(ErrorType.SyntaxError, "Cannot use return statement outside of function body");
     }
+
     public void scope_ctrl(String[] tokens) {
         if (scopeSys.contains(ScopeType.loop)) addToOutput(tokens[0], true);
         else addError(ErrorType.SyntaxError, "Cannot use " + tokens[0] + " statements outside of a loop");
     }
+
     public void lb(ScopeType type) {
         scopeSys.enterScope(type);
         addToOutput("{", false);
         tabLevel++;
     }
+
     public void rb() {
         tabLevel--;
         addToOutput("}", false);
         if (!scopeSys.leaveScope()) addError(ErrorType.BracketMismatchError, "Excess closing brackets");
     }
+
     public void newline() {
         line++;
     }
@@ -264,12 +285,10 @@ public class Parser {
         }
     }
 
-    private boolean areMatched(TokenType tokenType, String type) {
-        switch (type) {
-            case "bool": return tokenType == TokenType.bool;
-            case "string": return tokenType == TokenType.string;
-            case "num": return tokenType == TokenType.num;
-        }
+    private boolean areMatched(String val, String type) {
+        if (val.matches("[0-9]+\\.[0-9]+|[0-9]*") && type.equals("num")) return true;
+        if (val.matches("true|false") && type.equals("bool")) return true;
+        if (val.matches("\".*?\"") && type.equals("string")) return true;
         return false;
     }
 

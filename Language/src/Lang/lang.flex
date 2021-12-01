@@ -7,6 +7,7 @@ import LangTools.*;
 
 %class Lexer
 %standalone
+%public
 
 %{
     Parser parser;
@@ -21,14 +22,19 @@ import LangTools.*;
     System.out.println("\nLexer: End of execution");
 %eof}
 
-// TODO DEFINE EXPRESSIONS (BOTH MATHEMATICAL AND BOOLEAN =====================================
 // types
 num = [0-9]+\.[0-9]+|[0-9]*
 int = [1-9]+[0-9]*
 string = \"{all}\"
 bool = true|false
 literal = {num}|{string}|{bool}
+// operators
+
+// expressions
+math_exp = z0
+bool_exp = z
 // stuff
+keywords = if|then|for|from|to|while|do|let|func|num|bool|string|true|false|break
 all = .*?
 id = [A-Za-z]+[A-Za-z0-9_]*
 operator = \+ | \- | \* | \/
@@ -43,12 +49,13 @@ return_stmt = {wse}(return{ws}{value}|return)
 commands = print|display|read|make
 scope_ctrl = break|continue
 comment = \/\/{all}({newline}|{wse})
-value = {id}|{literal} // TODO expand to include function calls
+value = {id}|{literal}|{func_call}
+inp_arg_val = {id}|{literal}
 lb = \{
 rb = \}
 lp = \(
 rp = \)
-other = .*? // catch-all
+// other = ^{var_def}
 ignore = {ws}|{comment} // things to be matched but ignored
 // spaces
 tab = \t
@@ -56,21 +63,22 @@ newline = \n
 ws = [ ]+ // whitespace
 wse = [ ]* // whitespace (counting empty)
 // variables
-var_def = {wse}let{ws}{var_assign}
-var_assign = {wse}{id}{ws}{eq}{ws}{value}{ws}{arrow}{ws}{type}
+var_def = {wse}let{ws}{var_assign}{ws}{arrow}{ws}{type}
+var_assign = {wse}{id}{ws}{eq}{ws}{value}
 // control flow
 if_stmt = {wse}if{ws}{condition}{ws}then
 for_loop = {wse}for{ws}{id}{ws}from{ws}{int}{ws}to{ws}{int}{ws}do
 while_loop = {wse}while{ws}{condition}{ws}do
 // functions
 func_def = {wse}func{ws}{id}:{ws}{args}{ws}{arrow}{ws}{func_return}
-func_call = {wse}{id}\(\)
+func_call = {wse}{id}\({input_args}\)
 arg = {type}{ws}{value}
-args = ({arg},{wse})*{arg}|{wse}
+args = ({arg},{ws})*{arg}|{wse}
+input_args = ({inp_arg_val},{ws})*{inp_arg_val}|{wse}
 // top level
 stmt = {var_assign}{var_def}{if_stmt}{for_loop}{while_loop}{func_def}
 scope = {lb}{newline}{stmt}{newline}{rb}
-
+// states
 %state LOOP
 %state FUNC
 
@@ -80,14 +88,13 @@ scope = {lb}{newline}{stmt}{newline}{rb}
 
 <YYINITIAL> {
 
-// IDEA: have different versions of {var_def} to identify defs with bools, ints, etc and then send that info to parser.var_def()
     {var_def} {
         parser.var_def(parser.split(yytext()));
     }
 
-    // {var_assign} {
-
-    // }
+    {var_assign} {
+        parser.var_assign(parser.split(yytext()));
+    }
 
     {if_stmt} {
         parser.if_stmt(parser.split(yytext()));
@@ -106,6 +113,10 @@ scope = {lb}{newline}{stmt}{newline}{rb}
     {func_def} {
         parser.func_def(parser.split(yytext()));
         yybegin(FUNC);
+    }
+
+    {func_call} {
+        parser.func_call(yytext());
     }
 
     {return_stmt} {
