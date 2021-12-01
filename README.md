@@ -11,3 +11,8 @@ Our programming language sets out to provide tools for data analysis and visuali
 - **Static Typing:** Variable types are clearly defined
 - **Helpful Errors:** The parser marks the line numbers with errors and gives helpful messages
 - **Smart Error Detection:** All errors are identified on a single pass
+
+## Instructions
+1. Run Main.class
+2. Run it with an argument to give it a custon input file or without arguments to run the included test file
+3. Compile and run the resulting java class
