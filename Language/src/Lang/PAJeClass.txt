@@ -1,48 +1,34 @@
-import API.*;
 public class PAJeClass {
 	public static void main(String[] args) {
-		Double pi = 3.14;
-		Double area = 0;
+		double area = 0;
 		area = getArea(23);
-		Double my_num_var = 29834.0;
-		String hello = "Hello";
-		Boolean someBoolean = true;
-		Boolean someotherBool = true;
-		Double aNumber = 34.2;
-		while (someBoolean && someotherBool)
+		System.out.println(area);
+		for (int i = 0; i <= 10; i++)
 		{
-			Boolean aBoolean = true;
-			if (true)
-			{
-				Double abh = 29834.0;
-			}
-			for (int i = 10; i <= 10; i++)
-			{
-				if (false)
-				{
-					String mySTR = "HelloThere";
-					break;
-				}
-			}
+			System.out.println(factorial(i));
 		}
 	}
-	public Double getArea(Double radius)
+	public static double getArea(double radius)
 		{
-			return chonguiro;
-		}
-	public Double getATenSometimes(Double someNUM,Boolean aBool)
-		{
-			if (someBoolean)
+			if (radius<=0)
 			{
-				return 10;
+				return 0;
 			}
-			return someNUM;
+			double pi = 3.14;
+			return radius*radius*pi;
 		}
-	public void secondFunction(Double someNUM)
+	public static double factorial(double n)
 		{
-			if (someBoolean)
+			if (n<1)
 			{
-				return;
+				return 1;
 			}
+			if (n==2)
+			{
+				return 2;
+			}
+			double prev = n-1;
+			prev = factorial(prev);
+			return n*prev;
 		}
 }

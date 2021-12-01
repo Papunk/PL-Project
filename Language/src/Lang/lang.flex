@@ -23,34 +23,33 @@ import LangTools.*;
 %eof}
 
 // types
-num = [0-9]+\.[0-9]+|[0-9]*
-int = [1-9]+[0-9]*
+num = [0-9]+\.[0-9]+|{int}|{id}
+int = [1-9]+[0-9]*|0
 string = \"{all}\"
-bool = true|false
+bool = true|false|{id}
 literal = {num}|{string}|{bool}
 // operators
-
+operator = \+|\-|\*|\/
+rel_op = <|>|==|<=|>=|\!=
+bool_op = {rel_op}|&&|\|\||\!
 // expressions
-math_exp = z0
-bool_exp = z
+math_exp = ({num}{operator})*{num}|{num}
+rel_exp = ({bool}{rel_op})*{bool}|{bool}
 // stuff
 keywords = if|then|for|from|to|while|do|let|func|num|bool|string|true|false|break
 all = .*?
 id = [A-Za-z]+[A-Za-z0-9_]*
-operator = \+ | \- | \* | \/
-rel_op = <|>|==|<=|>=|\!=
-bool_op = {rel_op}|&&|\|\||\! // functions that return a boolean
-condition = {value}{wse}{bool_op}{wse}{value}|{value} // TODO refine this
+condition = {value}{wse}{bool_op}{wse}{value}|{value}
 arrow = ->
 eq = =
 type = num|string|bool
 func_return = {type}|void
 return_stmt = {wse}(return{ws}{value}|return)
-commands = print|display|read|make
+print = {wse}print{ws}{value}
 scope_ctrl = break|continue
 comment = \/\/{all}({newline}|{wse})
-value = {id}|{literal}|{func_call}
-inp_arg_val = {id}|{literal}
+value = {id}|{literal}|{func_call}|{math_exp}
+inp_arg_val = {id}|{literal}|{math_exp}|{rel_exp}
 lb = \{
 rb = \}
 lp = \(
@@ -125,6 +124,10 @@ scope = {lb}{newline}{stmt}{newline}{rb}
 
     {scope_ctrl} {
         parser.scope_ctrl(parser.split(yytext()));
+    }
+
+    {print} {
+        parser.print(parser.split(yytext()));
     }
 
     {newline} {

@@ -39,8 +39,7 @@ public class Parser {
         tabLevel = 0;
 //        addToOutput("import java.io.*", true);
 //        addToOutput("import java.util.*", true);
-        addToOutput("import API.*", true);
-        // add our custom packages
+//        addToOutput("import API.*", true);
         addToOutput("public class PAJeClass {", false);
         tabLevel++;
         addToOutput("public static void main(String[] args) {", false);
@@ -112,8 +111,7 @@ public class Parser {
     public void var_def(String[] tokens) {
         String name = tokens[1], eq = tokens[2], value = tokens[3], type = tokens[5];
         if (scopeSys.addVariable(name, type)) {
-            if (value.matches("[1-9]+[0-9]*")) value += ".0";
-            if (!areMatched(value, type)) addError(ErrorType.TypeMismatchError, "Value '" + value + "' does not correspond to type '" + type + "'");
+            if (!areMatched(value, type) && !value.matches(".*?(<|>|==|<=|>=|\\!=|\\+|\\-|\\*|/).*?")) addError(ErrorType.TypeMismatchError, "Value '" + value + "' does not correspond to type '" + type + "'");
             String temp = toJavaWS(type, TokenType.type) + toJavaWS(name, TokenType.id) + toJavaWS(eq, TokenType.eq) + toJava(value, TokenType.literal);
             addToOutput(temp, true);
         }
@@ -144,31 +142,11 @@ public class Parser {
         for (int i = 1; i < tokens.length - 1; i++) {
             String token = tokens[i];
             temp.append(token).append(" ");
-            if (!token.equals("true") && !token.equals("false") && !token.contains("&&") && !token.contains("||")) { // TODO check if this collides with strings
+            if (!token.equals("true") && !token.equals("false") && !token.contains("&&") && !token.contains("||") && !token.matches(".*?(<|>|>=|<=|==|!=|).*?")) {
                 if (!scopeSys.hasVariable(token)) addError(ErrorType.UndeclaredIdentifierError, "Symbol '" + token + "' not defined");
             }
         }
         addToOutput(temp.deleteCharAt(temp.length() - 1) + ")", false);
-    }
-
-    // TODO finish condition()
-    private void condition(String[] tokens) {
-        // match parenthesis
-        List<String> tokenList = Arrays.asList(tokens);
-        ArrayList<Integer> indicesWithOperators = new ArrayList<>();
-        for (int i = 0; i < tokens.length; i++) {
-            String token = tokens[i];
-            if (token.equals("||") || token.equals("&&")) {
-                indicesWithOperators.add(i);
-            }
-        }
-        // split by the indices obtained and sent the function to bool_exp() for processing
-        String[] s = (String[]) tokenList.toArray();
-
-    }
-
-    private void bool_exp(String[] tokens) {
-        // process boolean expressions based on their legality
     }
 
     public void for_loop(String[] tokens) {
@@ -193,7 +171,7 @@ public class Parser {
                 argString.append(toJavaWS(v.type, TokenType.type) + v.name + ",");
             }
             argString.deleteCharAt(argString.length() - 1);
-            String temp = "public " + toJavaWS(type, TokenType.type) + name + "(" + argString.toString() + ")";
+            String temp = "public static " + toJavaWS(type, TokenType.type) + name + "(" + argString.toString() + ")";
             funcQueue.add("\t" + temp);
         }
         else addError(ErrorType.SyntaxError, "Functions can only be declared at the top level");
@@ -213,6 +191,18 @@ public class Parser {
     }
 
     public void func_call(String tokens) {
+        int openPar = tokens.indexOf("(");
+        String name = tokens.substring(0, openPar);
+        String args = tokens.substring(openPar);
+        int numOfArgs = 0;
+        if (!args.isEmpty()) {
+            numOfArgs++; // there is at least one
+            for (Character c: args.toCharArray()) {
+                if (c == ',') numOfArgs++;
+            }
+        }
+        if (!scopeSys.hasFunction(name, numOfArgs)) addError(ErrorType.UndeclaredIdentifierError, "Function with equivalent signature to '" + tokens + "' does not exist");
+        else addToOutput(tokens, true);
 
     }
 
@@ -226,6 +216,11 @@ public class Parser {
         }
         // used outside of a function
         else addError(ErrorType.SyntaxError, "Cannot use return statement outside of function body");
+    }
+
+    public void print(String[] tokens) {
+        String value = tokens[1];
+        addToOutput("System.out.println(" + value + ")", true);
     }
 
     public void scope_ctrl(String[] tokens) {
@@ -315,7 +310,7 @@ public class Parser {
                         result = "Boolean";
                         break;
                     case "num":
-                        result = "Double";
+                        result = "double";
                         break;
                     case "string":
                         result = "String";

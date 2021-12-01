@@ -1,47 +1,39 @@
-let pi = 3.14 -> num
+// TEST FILE
+
+
+// Area of a circle
+
+
 let area = 0 -> num
 
 func getArea: num radius -> num {
-    return chonguiro
+    if radius<=0 then {
+        return 0
+    }
+    let pi = 3.14 -> num
+    return radius*radius*pi
 }
-
-getArea(23)
 
 area = getArea(23)
 
+print area
 
-let my_num_var = 29834 -> num
-let hello = "Hello" -> string
-let someBoolean = true -> bool
 
-func getATenSometimes: num someNUM, bool aBool -> num {
-    if someBoolean then {
-        return 10
+// Factorial
+
+
+func factorial: num n -> num {
+    if n<1 then {
+        return 1
     }
-    return someNUM
+    if n==2 then {
+        return 2
+    }
+    let prev = n-1 -> num
+    prev = factorial(prev)
+    return n*prev
 }
 
-func secondFunction: num someNUM -> void {
-    if someBoolean then {
-        return
-    }
-}
-
-getATenSometimes(21.1, true)
-
-let someotherBool = true -> bool
-let aNumber = 34.2 -> num
-
-while someBoolean && someotherBool do {
-    let aBoolean = true  -> bool
-    if true then {
-        let abh = 29834 -> num
-    }
-
-    for i from 10 to 10 do {
-        if false then {
-            let mySTR = "HelloThere" -> string
-            break
-        }
-    }
+for i from 0 to 10 do {
+    print factorial(i)
 }

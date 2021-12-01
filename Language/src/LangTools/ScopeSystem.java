@@ -16,7 +16,6 @@ public class ScopeSystem {
     public ScopeSystem() {
         currentScopeLevel = 0;
         scopeStack.add(new Scope(0, ScopeType.main)); // create program scope
-        // TODO add built in types to parent scope
     }
 
     /**
@@ -70,9 +69,9 @@ public class ScopeSystem {
         return !isValid(new Variable(name,""));
     }
 
-    public boolean hasFunction(String name) {
+    public boolean hasFunction(String name, int numOfArgs) {
         for (Function f: functions) {
-            if (f.name.equals(name)) return true;
+            if (f.name.equals(name) && f.args.size() == numOfArgs) return true;
         }
         return false;
     }
